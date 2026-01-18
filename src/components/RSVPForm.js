@@ -76,9 +76,16 @@ const RSVPForm = ({ guestData, onLogout }) => {
             <div className="event-info">
               <h3>Ceremony</h3>
               <p className="event-venue">St. Peter's Roman Catholic Church</p>
-              <p className="event-address">100 Bainbridge Ave</p>
-              <p className="event-address">Woodbridge, ON L4L 3Y1, Canada</p>
-              <p className="event-time">Please arrive by 2:30 PM</p>
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=St.+Peter's+Roman+Catholic+Church+100+Bainbridge+Ave+Woodbridge+ON+L4L+3Y1+Canada" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="event-address-link"
+              >
+                <p className="event-address">100 Bainbridge Ave</p>
+                <p className="event-address">Woodbridge, ON L4L 3Y1, Canada</p>
+              </a>
+              <p className="event-time">Please arrive by 12:15 PM</p>
             </div>
           </div>
 
@@ -89,8 +96,15 @@ const RSVPForm = ({ guestData, onLogout }) => {
             <div className="event-info">
               <h3>Reception</h3>
               <p className="event-venue">Chateau Le Parc</p>
-              <p className="event-address">1745 Langstaff Road W</p>
-              <p className="event-address">Vaughan, ON L4K 2H2, Canada</p>
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=Chateau+Le+Parc+1745+Langstaff+Road+W+Vaughan+ON+L4K+2H2" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="event-address-link"
+              >
+                <p className="event-address">1745 Langstaff Road W</p>
+                <p className="event-address">Vaughan, ON L4K 2H2, Canada</p>
+              </a>
               <p className="event-time">Cocktails at 5:00 PM</p>
             </div>
           </div>
