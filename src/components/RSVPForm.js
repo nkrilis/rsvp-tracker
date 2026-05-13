@@ -3,7 +3,7 @@ import './RSVPForm.css';
 import Logo from './Logo';
 import { submitFamilyRSVP } from '../services/rsvp';
 
-const MEAL_OPTIONS = ['Beef', 'Chicken', 'Fish', 'Vegetarian'];
+const MEAL_OPTIONS = ['Steak', 'Salmon'];
 
 const RSVPForm = ({ guestData, onLogout }) => {
   const { family, guests } = guestData;

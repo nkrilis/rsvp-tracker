@@ -16,6 +16,7 @@ const AdminDashboard = ({ onSignedOut }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [newFamilyName, setNewFamilyName] = useState('');
+  const [newFamilyAddress, setNewFamilyAddress] = useState('');
   const [newGuestNameByFamily, setNewGuestNameByFamily] = useState({});
 
   const refresh = useCallback(async () => {
@@ -40,8 +41,9 @@ const AdminDashboard = ({ onSignedOut }) => {
     const name = newFamilyName.trim();
     if (!name) return;
     try {
-      await createFamily(name);
+      await createFamily(name, newFamilyAddress.trim() || null);
       setNewFamilyName('');
+      setNewFamilyAddress('');
       await refresh();
     } catch (err) {
       setError(err.message);
@@ -54,7 +56,19 @@ const AdminDashboard = ({ onSignedOut }) => {
     const trimmed = next.trim();
     if (!trimmed || trimmed === current) return;
     try {
-      await updateFamily(id, trimmed);
+      await updateFamily(id, { family_name: trimmed });
+      await refresh();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleEditAddress = async (id, current) => {
+    const next = window.prompt('Mailing address:', current || '');
+    if (next == null) return;
+    const trimmed = next.trim();
+    try {
+      await updateFamily(id, { address: trimmed || null });
       await refresh();
     } catch (err) {
       setError(err.message);
@@ -150,6 +164,12 @@ const AdminDashboard = ({ onSignedOut }) => {
           onChange={(e) => setNewFamilyName(e.target.value)}
           placeholder="New family name (e.g. The Smiths)"
         />
+        <input
+          type="text"
+          value={newFamilyAddress}
+          onChange={(e) => setNewFamilyAddress(e.target.value)}
+          placeholder="Mailing address (optional)"
+        />
         <button type="submit">Add Family</button>
       </form>
 
@@ -161,13 +181,24 @@ const AdminDashboard = ({ onSignedOut }) => {
         families.map((f) => (
           <div key={f.id} className="admin-family">
             <div className="admin-family-header">
-              <h2>{f.family_name}</h2>
+              <div>
+                <h2>{f.family_name}</h2>
+                <p className="admin-family-address">
+                  {f.address || <em>No address on file</em>}
+                </p>
+              </div>
               <div className="admin-family-actions">
                 <button
                   className="link-btn"
                   onClick={() => handleRenameFamily(f.id, f.family_name)}
                 >
                   Rename
+                </button>
+                <button
+                  className="link-btn"
+                  onClick={() => handleEditAddress(f.id, f.address)}
+                >
+                  Edit Address
                 </button>
                 <button
                   className="link-btn danger"

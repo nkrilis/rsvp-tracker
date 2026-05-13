@@ -74,27 +74,27 @@ export const listFamilies = async () => {
   const { data, error } = await supabase
     .from('families')
     .select(
-      'id, family_name, created_at, guests(id, full_name, email, church_attendance, reception_attendance, meal_preference, dietary_restrictions, rsvp_submitted_at)'
+      'id, family_name, address, created_at, guests(id, full_name, email, church_attendance, reception_attendance, meal_preference, dietary_restrictions, rsvp_submitted_at)'
     )
     .order('created_at', { ascending: true });
   if (error) throw error;
   return data || [];
 };
 
-export const createFamily = async (familyName) => {
+export const createFamily = async (familyName, address = null) => {
   const { data, error } = await supabase
     .from('families')
-    .insert({ family_name: familyName })
+    .insert({ family_name: familyName, address })
     .select()
     .single();
   if (error) throw error;
   return data;
 };
 
-export const updateFamily = async (id, familyName) => {
+export const updateFamily = async (id, fields) => {
   const { error } = await supabase
     .from('families')
-    .update({ family_name: familyName })
+    .update(fields)
     .eq('id', id);
   if (error) throw error;
 };

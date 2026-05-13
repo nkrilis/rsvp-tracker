@@ -199,3 +199,15 @@
     overflow-x: auto;
   }
 }
+
+.admin-family-address {
+  margin: 0.25rem 0 0;
+  color: #666;
+  font-size: 0.95rem;
+  white-space: pre-line;
+}
+
+.admin-family-address em {
+  color: #aaa;
+  font-style: italic;
+}
