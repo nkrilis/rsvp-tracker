@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Login from './components/Login';
 import RSVPForm from './components/RSVPForm';
@@ -29,12 +29,12 @@ function GuestApp() {
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<GuestApp />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </div>
   );
 }
