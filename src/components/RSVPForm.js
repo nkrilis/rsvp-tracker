@@ -1,26 +1,32 @@
 import React, { useState } from 'react';
 import './RSVPForm.css';
 import Logo from './Logo';
-import { updateGuestRSVP } from '../services/googleSheets';
+import { submitFamilyRSVP } from '../services/rsvp';
+
+const MEAL_OPTIONS = ['Beef', 'Chicken', 'Fish', 'Vegetarian'];
 
 const RSVPForm = ({ guestData, onLogout }) => {
-  const [formData, setFormData] = useState({
-    churchAttendance: guestData.churchAttendance || '',
-    receptionAttendance: guestData.receptionAttendance || '',
-    mealPreference: guestData.mealPreference || '',
-    dietaryRestrictions: guestData.dietaryRestrictions || ''
-  });
-  
+  const { family, guests } = guestData;
+
+  const [guestForms, setGuestForms] = useState(
+    guests.map((g) => ({
+      id: g.id,
+      full_name: g.full_name,
+      church_attendance: g.church_attendance || '',
+      reception_attendance: g.reception_attendance || '',
+      meal_preference: g.meal_preference || '',
+      dietary_restrictions: g.dietary_restrictions || '',
+    }))
+  );
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const updateGuestField = (id, field, value) => {
+    setGuestForms((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, [field]: value } : g))
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -30,29 +36,32 @@ const RSVPForm = ({ guestData, onLogout }) => {
     setSuccess(false);
 
     try {
-      await updateGuestRSVP(guestData.rowIndex, formData);
+      await submitFamilyRSVP(guestForms);
       setSuccess(true);
-      
-      // Scroll to top to show success message
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
-      setError('Unable to save your RSVP. Please try again or contact Nicholas and Elisabeth directly.');
+      setError(
+        'Unable to save your RSVP. Please try again or contact Nicholas and Elisabeth directly.'
+      );
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  const headerName =
+    guests.length === 1 ? guests[0].full_name : family?.family_name || 'Friends';
+
   return (
     <div className="rsvp-container">
       <div className="rsvp-card">
         <Logo />
-        
+
         <div className="rsvp-header">
-          <h1>Welcome, {guestData.fullName}!</h1>
+          <h1>Welcome, {headerName}!</h1>
           <p className="thank-you-text">
-            We are overjoyed that you will be sharing in our special day. 
-            Your presence means the world to us, and we cannot wait to celebrate 
+            We are overjoyed that you will be sharing in our special day.
+            Your presence means the world to us, and we cannot wait to celebrate
             this momentous occasion with you.
           </p>
         </div>
@@ -113,138 +122,139 @@ const RSVPForm = ({ guestData, onLogout }) => {
         <form onSubmit={handleSubmit} className="rsvp-form">
           <h2>Your RSVP</h2>
 
-          <div className="form-section">
-            <label className="form-label">
-              Will you be attending the Church Ceremony?
-            </label>
-            <div className="radio-group">
-              <label className="radio-label">
-                <input
-                  type="radio"
-                  name="churchAttendance"
-                  value="Yes"
-                  checked={formData.churchAttendance === 'Yes'}
-                  onChange={handleInputChange}
-                  required
-                />
-                <span>Yes, I'll be there</span>
-              </label>
-              <label className="radio-label">
-                <input
-                  type="radio"
-                  name="churchAttendance"
-                  value="No"
-                  checked={formData.churchAttendance === 'No'}
-                  onChange={handleInputChange}
-                />
-                <span>Unable to attend</span>
-              </label>
-            </div>
-          </div>
+          {guestForms.map((g, idx) => (
+            <div key={g.id} className="guest-block">
+              <div className="guest-block-header">
+                <span className="guest-block-name">{g.full_name}</span>
+                {guestForms.length > 1 && (
+                  <span className="guest-block-count">
+                    Guest {idx + 1} of {guestForms.length}
+                  </span>
+                )}
+              </div>
 
-          <div className="form-section">
-            <label className="form-label">
-              Will you be attending the Reception?
-            </label>
-            <div className="radio-group">
-              <label className="radio-label">
-                <input
-                  type="radio"
-                  name="receptionAttendance"
-                  value="Yes"
-                  checked={formData.receptionAttendance === 'Yes'}
-                  onChange={handleInputChange}
-                  required
-                />
-                <span>Yes, I'll be there</span>
-              </label>
-              <label className="radio-label">
-                <input
-                  type="radio"
-                  name="receptionAttendance"
-                  value="No"
-                  checked={formData.receptionAttendance === 'No'}
-                  onChange={handleInputChange}
-                />
-                <span>Unable to attend</span>
-              </label>
-            </div>
-          </div>
-
-          {formData.receptionAttendance === 'Yes' && (
-            <>
               <div className="form-section">
                 <label className="form-label">
-                  Meal Preference
+                  Will {g.full_name.split(' ')[0]} be attending the Church Ceremony?
                 </label>
                 <div className="radio-group">
                   <label className="radio-label">
                     <input
                       type="radio"
-                      name="mealPreference"
-                      value="Beef"
-                      checked={formData.mealPreference === 'Beef'}
-                      onChange={handleInputChange}
+                      name={`church_${g.id}`}
+                      value="Yes"
+                      checked={g.church_attendance === 'Yes'}
+                      onChange={(e) =>
+                        updateGuestField(g.id, 'church_attendance', e.target.value)
+                      }
                       required
                     />
-                    <span>Beef</span>
+                    <span>Yes, attending</span>
                   </label>
                   <label className="radio-label">
                     <input
                       type="radio"
-                      name="mealPreference"
-                      value="Chicken"
-                      checked={formData.mealPreference === 'Chicken'}
-                      onChange={handleInputChange}
+                      name={`church_${g.id}`}
+                      value="No"
+                      checked={g.church_attendance === 'No'}
+                      onChange={(e) =>
+                        updateGuestField(g.id, 'church_attendance', e.target.value)
+                      }
                     />
-                    <span>Chicken</span>
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="mealPreference"
-                      value="Fish"
-                      checked={formData.mealPreference === 'Fish'}
-                      onChange={handleInputChange}
-                    />
-                    <span>Fish</span>
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="mealPreference"
-                      value="Vegetarian"
-                      checked={formData.mealPreference === 'Vegetarian'}
-                      onChange={handleInputChange}
-                    />
-                    <span>Vegetarian</span>
+                    <span>Unable to attend</span>
                   </label>
                 </div>
               </div>
 
               <div className="form-section">
-                <label className="form-label" htmlFor="dietaryRestrictions">
-                  Dietary Restrictions or Allergies
+                <label className="form-label">
+                  Will {g.full_name.split(' ')[0]} be attending the Reception?
                 </label>
-                <input
-                  type="text"
-                  id="dietaryRestrictions"
-                  name="dietaryRestrictions"
-                  value={formData.dietaryRestrictions}
-                  onChange={handleInputChange}
-                  placeholder="Please list any dietary restrictions or allergies"
-                  className="form-input"
-                />
-                <p className="form-help">Leave blank if none</p>
+                <div className="radio-group">
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      name={`reception_${g.id}`}
+                      value="Yes"
+                      checked={g.reception_attendance === 'Yes'}
+                      onChange={(e) =>
+                        updateGuestField(g.id, 'reception_attendance', e.target.value)
+                      }
+                      required
+                    />
+                    <span>Yes, attending</span>
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      name={`reception_${g.id}`}
+                      value="No"
+                      checked={g.reception_attendance === 'No'}
+                      onChange={(e) =>
+                        updateGuestField(g.id, 'reception_attendance', e.target.value)
+                      }
+                    />
+                    <span>Unable to attend</span>
+                  </label>
+                </div>
               </div>
-            </>
-          )}
 
-          <button 
-            type="submit" 
-            className="submit-btn"
-            disabled={loading}
-          >
+              {g.reception_attendance === 'Yes' && (
+                <>
+                  <div className="form-section">
+                    <label className="form-label">Meal Preference</label>
+                    <div className="radio-group">
+                      {MEAL_OPTIONS.map((meal) => (
+                        <label key={meal} className="radio-label">
+                          <input
+                            type="radio"
+                            name={`meal_${g.id}`}
+                            value={meal}
+                            checked={g.meal_preference === meal}
+                            onChange={(e) =>
+                              updateGuestField(
+                                g.id,
+                                'meal_preference',
+                                e.target.value
+                              )
+                            }
+                            required
+                          />
+                          <span>{meal}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="form-section">
+                    <label
+                      className="form-label"
+                      htmlFor={`diet_${g.id}`}
+                    >
+                      Dietary Restrictions or Allergies
+                    </label>
+                    <input
+                      type="text"
+                      id={`diet_${g.id}`}
+                      value={g.dietary_restrictions}
+                      onChange={(e) =>
+                        updateGuestField(
+                          g.id,
+                          'dietary_restrictions',
+                          e.target.value
+                        )
+                      }
+                      placeholder="Please list any dietary restrictions or allergies"
+                      className="form-input"
+                    />
+                    <p className="form-help">Leave blank if none</p>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+
+          <button type="submit" className="submit-btn" disabled={loading}>
             {loading ? 'Saving...' : 'Save RSVP'}
           </button>
         </form>

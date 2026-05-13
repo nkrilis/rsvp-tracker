@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Login.css';
 import Logo from './Logo';
-import { searchGuest } from '../services/googleSheets';
+import { findFamilyByGuestName } from '../services/rsvp';
 
 const Login = ({ onLoginSuccess }) => {
   const [fullName, setFullName] = useState('');
@@ -14,12 +14,14 @@ const Login = ({ onLoginSuccess }) => {
     setLoading(true);
 
     try {
-      const guestData = await searchGuest(fullName);
-      
-      if (guestData) {
-        onLoginSuccess(guestData);
+      const result = await findFamilyByGuestName(fullName);
+
+      if (result) {
+        onLoginSuccess(result);
       } else {
-        setError('We couldn\'t find your name on our guest list. Please check your spelling or contact the couple.');
+        setError(
+          "We couldn't find your name on our guest list. Please check your spelling or contact the couple."
+        );
       }
     } catch (err) {
       setError('An error occurred while searching. Please try again.');
@@ -36,7 +38,7 @@ const Login = ({ onLoginSuccess }) => {
         
         <div className="login-welcome">
           <h2>Welcome</h2>
-          <p>Please enter your full name to access your RSVP</p>
+          <p>Please enter your full name to access your family's RSVP</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

@@ -1,0 +1,201 @@
+.admin-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  font-weight: 400;
+  margin: 0;
+}
+
+.admin-signout {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+}
+
+.admin-signout:hover {
+  background: #f5f5f5;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-stats .stat {
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.admin-stats .stat span {
+  display: block;
+  font-size: 2rem;
+  color: #000;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.admin-error {
+  background: #ffe0e0;
+  color: #c00;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border: 1px solid #ffcccc;
+}
+
+.admin-add-family {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-add-family input,
+.admin-add-guest input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #d0d0d0;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.admin-add-family button,
+.admin-add-guest button {
+  padding: 0.75rem 1.25rem;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+}
+
+.admin-add-family button:hover,
+.admin-add-guest button:hover {
+  background: #333;
+}
+
+.admin-empty {
+  color: #888;
+  font-style: italic;
+}
+
+.admin-family {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-family-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.admin-family-header h2 {
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.admin-family-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #444;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  padding: 0.25rem 0.4rem;
+}
+
+.link-btn:hover {
+  color: #000;
+}
+
+.link-btn.danger {
+  color: #c00;
+}
+
+.admin-guests {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.admin-guests th,
+.admin-guests td {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-guests th {
+  font-weight: 500;
+  color: #555;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+}
+
+.admin-guests .muted {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+}
+
+.admin-guests .row-actions {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.admin-add-guest {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 700px) {
+  .admin-guests {
+    display: block;
+    overflow-x: auto;
+  }
+}

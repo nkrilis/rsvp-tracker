@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Login from './components/Login';
 import RSVPForm from './components/RSVPForm';
+import AdminPage from './components/AdminPage';
 
-function App() {
+function GuestApp() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [guestData, setGuestData] = useState(null);
 
@@ -17,13 +19,22 @@ function App() {
     setGuestData(null);
   };
 
+  return !isAuthenticated ? (
+    <Login onLoginSuccess={handleLoginSuccess} />
+  ) : (
+    <RSVPForm guestData={guestData} onLogout={handleLogout} />
+  );
+}
+
+function App() {
   return (
     <div className="App">
-      {!isAuthenticated ? (
-        <Login onLoginSuccess={handleLoginSuccess} />
-      ) : (
-        <RSVPForm guestData={guestData} onLogout={handleLogout} />
-      )}
+      <BrowserRouter>
+        <Routes>
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="*" element={<GuestApp />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }

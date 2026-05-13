@@ -352,3 +352,33 @@
     padding: 0.875rem;
   }
 }
+
+.guest-block {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  background: #fff;
+}
+
+.guest-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.guest-block-name {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #000;
+}
+
+.guest-block-count {
+  font-size: 0.875rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
