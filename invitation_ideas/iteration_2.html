@@ -636,11 +636,45 @@ body {
 .s32 { height: 32px; display:block; }
 
 /* ═══════════════════════════════════════════════
+   DOWNLOAD BUTTONS
+═══════════════════════════════════════════════ */
+.btn-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.download-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.download-btn:hover {
+  color: var(--cream);
+  border-color: var(--gold);
+  background: rgba(154,132,96,.08);
+}
+.download-btn:disabled { opacity:.4; cursor: wait; }
+
+/* When printing a single piece, body gets .printing-<id> and only that piece shows */
+body.printing-only .suite-label,
+body.printing-only .piece-label,
+body.printing-only .btn-group { display: none !important; }
+body.printing-only .piece-wrap { display: none !important; }
+body.printing-only .piece-wrap.printing-active { display: flex !important; margin: 0 !important; }
+
+/* ═══════════════════════════════════════════════
    PRINT
 ═══════════════════════════════════════════════ */
 @media print {
   body { background: white; padding: 0; }
-  .suite-label, .piece-label { display: none; }
+  .suite-label, .piece-label, .btn-group, .download-btn { display: none !important; }
   .piece-wrap { margin: 0; page-break-after: always; }
   .card-shadow { box-shadow: none; }
 }
@@ -653,8 +687,13 @@ body {
 <!-- ══════════════════════════════════════════════
      PIECE 1 · MAIN INVITATION — 5 × 7 in
 ══════════════════════════════════════════════ -->
-<div class="piece-wrap">
+<div class="piece-wrap" data-piece-w="480" data-piece-h="672">
   <p class="piece-label">01 &nbsp;·&nbsp; Main Invitation &nbsp;·&nbsp; 5 × 7 in</p>
+  <div class="btn-group">
+    <button class="download-btn" data-action="pdf" data-filename="01-main-invitation">Print / Save as PDF</button>
+    <button class="download-btn" data-action="svg" data-filename="01-main-invitation">Download SVG</button>
+    <button class="download-btn" data-action="png" data-filename="01-main-invitation">Download PNG @4×</button>
+  </div>
 
   <div class="invite card-shadow">
 
@@ -748,8 +787,13 @@ body {
 <!-- ══════════════════════════════════════════════
      PIECE 2 · ENVELOPE — 7.25 × 5.25 in landscape
 ══════════════════════════════════════════════ -->
-<div class="piece-wrap">
+<div class="piece-wrap" data-piece-w="696" data-piece-h="504">
   <p class="piece-label">02 &nbsp;·&nbsp; Mailing Envelope &nbsp;·&nbsp; A7 — 7.25 × 5.25 in</p>
+  <div class="btn-group">
+    <button class="download-btn" data-action="pdf" data-filename="02-envelope">Print / Save as PDF</button>
+    <button class="download-btn" data-action="svg" data-filename="02-envelope">Download SVG</button>
+    <button class="download-btn" data-action="png" data-filename="02-envelope">Download PNG @4×</button>
+  </div>
 
   <div class="envelope-wrap card-shadow">
     <div class="env-front">
@@ -807,8 +851,13 @@ body {
 <!-- ══════════════════════════════════════════════
      PIECE 3 · DETAILS INSERT — 4.25 × 6 in
 ══════════════════════════════════════════════ -->
-<div class="piece-wrap">
+<div class="piece-wrap" data-piece-w="408" data-piece-h="576">
   <p class="piece-label">03 &nbsp;·&nbsp; Details Insert Card &nbsp;·&nbsp; 4.25 × 6 in</p>
+  <div class="btn-group">
+    <button class="download-btn" data-action="pdf" data-filename="03-details-insert">Print / Save as PDF</button>
+    <button class="download-btn" data-action="svg" data-filename="03-details-insert">Download SVG</button>
+    <button class="download-btn" data-action="png" data-filename="03-details-insert">Download PNG @4×</button>
+  </div>
 
   <div class="details-card card-shadow">
     <div class="det-border"></div>
@@ -974,8 +1023,13 @@ body {
 <!-- ══════════════════════════════════════════════
      PIECE 4 · RSVP CIRCLE — 3.5 in diameter
 ══════════════════════════════════════════════ -->
-<div class="piece-wrap">
+<div class="piece-wrap" data-piece-w="336" data-piece-h="336">
   <p class="piece-label">04 &nbsp;·&nbsp; RSVP Circle Card &nbsp;·&nbsp; 3.5 in diameter</p>
+  <div class="btn-group">
+    <button class="download-btn" data-action="pdf" data-filename="04-rsvp-circle">Print / Save as PDF</button>
+    <button class="download-btn" data-action="svg" data-filename="04-rsvp-circle">Download SVG</button>
+    <button class="download-btn" data-action="png" data-filename="04-rsvp-circle">Download PNG @4×</button>
+  </div>
 
   <div class="rsvp-wrap">
     <div class="rsvp-body">
@@ -1067,6 +1121,205 @@ body {
     </div>
   </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  // ============================================================
+  // Per-piece export
+  //   PDF: hides every other piece, sets @page size to the piece's
+  //        physical dimensions, then calls window.print(). User
+  //        chooses "Save as PDF" — the resulting PDF opens cleanly
+  //        in Illustrator as fully editable vector artwork.
+  //   PNG: renders the piece via html2canvas at 4× scale (~384 DPI).
+  // ============================================================
+
+  const dynamicPageStyle = document.createElement('style');
+  document.head.appendChild(dynamicPageStyle);
+
+  function pxToIn(px) { return (px / 96).toFixed(4) + 'in'; }
+
+  async function ensureFontsReady() {
+    if (document.fonts && document.fonts.ready) {
+      try { await document.fonts.ready; } catch (_) {}
+    }
+  }
+
+  async function exportPDF(pieceWrap, filename) {
+    await ensureFontsReady();
+    const w = pieceWrap.dataset.pieceW;
+    const h = pieceWrap.dataset.pieceH;
+    dynamicPageStyle.textContent =
+      '@page { size: ' + pxToIn(w) + ' ' + pxToIn(h) + '; margin: 0; }';
+
+    // Suggest filename in print dialog by temporarily changing document.title
+    const originalTitle = document.title;
+    document.title = filename;
+
+    pieceWrap.classList.add('printing-active');
+    document.body.classList.add('printing-only');
+
+    const cleanup = () => {
+      document.body.classList.remove('printing-only');
+      pieceWrap.classList.remove('printing-active');
+      dynamicPageStyle.textContent = '';
+      document.title = originalTitle;
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+
+    // Allow layout to settle before invoking print
+    requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+  }
+
+  async function exportPNG(pieceWrap, filename, btn) {
+    await ensureFontsReady();
+    // The artwork is the first non-label/btn-group child of .piece-wrap
+    const artwork = pieceWrap.querySelector(
+      '.invite, .envelope-wrap, .details-card, .rsvp-wrap'
+    );
+    if (!artwork) return;
+
+    btn.textContent = 'Rendering…';
+    const canvas = await html2canvas(artwork, {
+      backgroundColor: null,
+      scale: 4,
+      useCORS: true,
+      logging: false,
+    });
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), {
+        href: url, download: filename + '.png',
+      });
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  }
+
+  // Build a self-contained SVG that embeds the artwork via <foreignObject>.
+  // This preserves every CSS effect, pseudo-element, gradient and inline SVG
+  // exactly as the browser renders it. Best viewed in browsers; Illustrator
+  // may rasterize foreignObject content — use PDF export for editable AI.
+  async function exportSVG(pieceWrap, filename) {
+    await ensureFontsReady();
+    const artwork = pieceWrap.querySelector(
+      '.invite, .envelope-wrap, .details-card, .rsvp-wrap'
+    );
+    if (!artwork) return;
+
+    const w = parseInt(pieceWrap.dataset.pieceW, 10);
+    const h = parseInt(pieceWrap.dataset.pieceH, 10);
+
+    // Collect all <style> blocks and same-origin <link rel=stylesheet> hrefs
+    const styleBlocks = Array.from(document.querySelectorAll('style'))
+      .map((s) => s.textContent)
+      .join('\n');
+
+    // Inline Google Fonts (and any other stylesheet links) by fetching their CSS
+    const linkHrefs = Array.from(
+      document.querySelectorAll('link[rel="stylesheet"]')
+    ).map((l) => l.href);
+
+    const externalCss = (
+      await Promise.all(
+        linkHrefs.map(async (href) => {
+          try {
+            const res = await fetch(href);
+            return await res.text();
+          } catch (_) {
+            return '';
+          }
+        })
+      )
+    ).join('\n');
+
+    // Clone the artwork so we can normalise its position (no offset parent)
+    const clone = artwork.cloneNode(true);
+    clone.style.margin = '0';
+    clone.style.position = 'relative';
+    clone.style.top = '0';
+    clone.style.left = '0';
+    clone.style.transform = 'none';
+    // Ensure the root element declares the XHTML namespace so the serializer
+    // emits valid XML (and so inline <svg> children stay in the SVG namespace).
+    clone.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+
+    // Use XMLSerializer (not .innerHTML) so HTML named entities like &nbsp;
+    // are emitted as numeric character references (&#160;) that XML parsers
+    // — including SVG renderers — accept. innerHTML produces HTML-flavored
+    // output with named entities, which breaks SVG parsing.
+    const serializer = new XMLSerializer();
+    let artworkHTML = serializer.serializeToString(clone);
+    // Belt-and-suspenders: replace any remaining named entities the serializer
+    // may have left behind with numeric equivalents.
+    artworkHTML = artworkHTML
+      .replace(/&nbsp;/g, '&#160;')
+      .replace(/&copy;/g, '&#169;')
+      .replace(/&reg;/g, '&#174;')
+      .replace(/&hellip;/g, '&#8230;')
+      .replace(/&mdash;/g, '&#8212;')
+      .replace(/&ndash;/g, '&#8211;')
+      .replace(/&lsquo;/g, '&#8216;')
+      .replace(/&rsquo;/g, '&#8217;')
+      .replace(/&ldquo;/g, '&#8220;')
+      .replace(/&rdquo;/g, '&#8221;');
+
+    const svg =
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<svg xmlns="http://www.w3.org/2000/svg" ' +
+      'xmlns:xhtml="http://www.w3.org/1999/xhtml" ' +
+      'width="' + w + '" height="' + h + '" ' +
+      'viewBox="0 0 ' + w + ' ' + h + '">\n' +
+      '  <defs><style type="text/css"><![CDATA[\n' +
+      externalCss + '\n' + styleBlocks +
+      '\n]]></style></defs>\n' +
+      '  <foreignObject x="0" y="0" width="' + w + '" height="' + h + '">\n' +
+      artworkHTML + '\n' +
+      '  </foreignObject>\n' +
+      '</svg>';
+
+    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), {
+      href: url, download: filename + '.svg',
+    });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  document.querySelectorAll('.download-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const pieceWrap = btn.closest('.piece-wrap');
+      const filename = btn.dataset.filename || 'piece';
+      const action = btn.dataset.action;
+      const original = btn.textContent;
+      btn.disabled = true;
+
+      try {
+        if (action === 'pdf') {
+          btn.textContent = 'Opening print…';
+          await exportPDF(pieceWrap, filename);
+        } else if (action === 'svg') {
+          btn.textContent = 'Building SVG…';
+          await exportSVG(pieceWrap, filename);
+        } else if (action === 'png') {
+          await exportPNG(pieceWrap, filename, btn);
+        }
+      } catch (err) {
+        console.error(err);
+        btn.textContent = 'Failed';
+      } finally {
+        setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1200);
+      }
+    });
+  });
+</script>
 
 </body>
 </html>
