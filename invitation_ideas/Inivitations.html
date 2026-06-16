@@ -859,6 +859,7 @@ body.printing-only .piece-wrap.printing-active { display: flex !important; margi
   <div class="btn-group">
     <button class="download-btn" data-action="pdf" data-filename="03-details-insert">Print / Save as PDF</button>
     <button class="download-btn" data-action="svg" data-filename="03-details-insert">Download SVG</button>
+    <button class="download-btn" data-action="venue-svg" data-filename="chateau-le-parc-line-drawing">Download Venue SVG</button>
     <button class="download-btn" data-action="png" data-filename="03-details-insert">Download PNG @4×</button>
   </div>
 
@@ -1332,6 +1333,55 @@ body.printing-only .piece-wrap.printing-active { display: flex !important; margi
     URL.revokeObjectURL(url);
   }
 
+  /* ──────────────────────────────────────────────
+     EXPORT — VENUE LINE DRAWING (standalone SVG)
+     Serializes only the inner <svg> from .venue-art
+     so it can be reused as clean vector artwork.
+  ────────────────────────────────────────────── */
+  async function exportVenueSVG(pieceWrap, filename) {
+    const svgEl = pieceWrap.querySelector('.venue-art svg');
+    if (!svgEl) throw new Error('Venue SVG not found in this piece');
+
+    const clone = svgEl.cloneNode(true);
+
+    // Ensure SVG namespace (required for standalone files).
+    if (!clone.getAttribute('xmlns')) {
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    }
+    if (!clone.getAttribute('xmlns:xlink')) {
+      clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    }
+
+    // Give the standalone file natural pixel dimensions derived from
+    // its viewBox so it opens at a sensible size in any viewer.
+    const vb = clone.getAttribute('viewBox');
+    if (vb) {
+      const parts = vb.trim().split(/[\s,]+/).map(Number);
+      if (parts.length === 4) {
+        const [, , vbW, vbH] = parts;
+        // Render at ~3× viewBox units for crisp default size.
+        clone.setAttribute('width',  String(vbW * 3));
+        clone.setAttribute('height', String(vbH * 3));
+      }
+    }
+
+    const serializer = new XMLSerializer();
+    const svgStr =
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<!-- Château Le Parc — line drawing · Elisabeth & Nicholas wedding suite -->\n' +
+      serializer.serializeToString(clone);
+
+    const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), {
+      href: url, download: filename + '.svg',
+    });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   document.querySelectorAll('.download-btn').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const pieceWrap = btn.closest('.piece-wrap');
@@ -1347,6 +1397,9 @@ body.printing-only .piece-wrap.printing-active { display: flex !important; margi
         } else if (action === 'svg') {
           btn.textContent = 'Building SVG…';
           await exportSVG(pieceWrap, filename);
+        } else if (action === 'venue-svg') {
+          btn.textContent = 'Building SVG…';
+          await exportVenueSVG(pieceWrap, filename);
         } else if (action === 'png') {
           await exportPNG(pieceWrap, filename, btn);
         }
