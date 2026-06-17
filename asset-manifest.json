@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/rsvp-tracker/static/css/main.f7dc38ba.css",
-    "main.js": "/rsvp-tracker/static/js/main.ab1a0566.js",
-    "index.html": "/rsvp-tracker/index.html",
-    "main.f7dc38ba.css.map": "/rsvp-tracker/static/css/main.f7dc38ba.css.map",
-    "main.ab1a0566.js.map": "/rsvp-tracker/static/js/main.ab1a0566.js.map"
+    "main.css": "/static/css/main.f7dc38ba.css",
+    "main.js": "/static/js/main.ab1a0566.js",
+    "index.html": "/index.html",
+    "main.f7dc38ba.css.map": "/static/css/main.f7dc38ba.css.map",
+    "main.ab1a0566.js.map": "/static/js/main.ab1a0566.js.map"
   },
   "entrypoints": [
     "static/css/main.f7dc38ba.css",
