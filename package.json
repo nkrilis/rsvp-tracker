@@ -2,7 +2,7 @@
   "name": "rsvp-tracker",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://nkrilis.github.io/rsvp-tracker",
+  "homepage": "https://www.elisabethandnicholas.com",
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",
     "react": "^18.2.0",
