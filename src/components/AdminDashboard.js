@@ -18,6 +18,7 @@ const AdminDashboard = ({ onSignedOut }) => {
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyAddress, setNewFamilyAddress] = useState('');
   const [newGuestNameByFamily, setNewGuestNameByFamily] = useState({});
+  const [newGuestIsChildByFamily, setNewGuestIsChildByFamily] = useState({});
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -88,9 +89,20 @@ const AdminDashboard = ({ onSignedOut }) => {
   const handleAddGuest = async (familyId) => {
     const name = (newGuestNameByFamily[familyId] || '').trim();
     if (!name) return;
+    const isChild = !!newGuestIsChildByFamily[familyId];
     try {
-      await addGuest(familyId, name);
+      await addGuest(familyId, name, isChild);
       setNewGuestNameByFamily((p) => ({ ...p, [familyId]: '' }));
+      setNewGuestIsChildByFamily((p) => ({ ...p, [familyId]: false }));
+      await refresh();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleToggleChild = async (id, current) => {
+    try {
+      await updateGuest(id, { is_child: !current });
       await refresh();
     } catch (err) {
       setError(err.message);
@@ -213,6 +225,7 @@ const AdminDashboard = ({ onSignedOut }) => {
               <thead>
                 <tr>
                   <th>Name</th>
+                  <th>Type</th>
                   <th>Church</th>
                   <th>Reception</th>
                   <th>Meal</th>
@@ -224,7 +237,7 @@ const AdminDashboard = ({ onSignedOut }) => {
               <tbody>
                 {(f.guests || []).length === 0 && (
                   <tr>
-                    <td colSpan={7} className="muted">
+                    <td colSpan={8} className="muted">
                       No guests yet.
                     </td>
                   </tr>
@@ -232,16 +245,29 @@ const AdminDashboard = ({ onSignedOut }) => {
                 {(f.guests || []).map((g) => (
                   <tr key={g.id}>
                     <td>{g.full_name}</td>
-                    <td>{g.church_attendance || '—'}</td>
-                    <td>{g.reception_attendance || '—'}</td>
-                    <td>{g.meal_preference || '—'}</td>
-                    <td>{g.dietary_restrictions || '—'}</td>
+                    <td>
+                      <span
+                        className={`guest-type-badge${g.is_child ? ' child' : ''}`}
+                      >
+                        {g.is_child ? 'Child' : 'Adult'}
+                      </span>
+                    </td>
+                    <td>{g.church_attendance || '\u2014'}</td>
+                    <td>{g.reception_attendance || '\u2014'}</td>
+                    <td>{g.meal_preference || '\u2014'}</td>
+                    <td>{g.dietary_restrictions || '\u2014'}</td>
                     <td>
                       {g.rsvp_submitted_at
                         ? new Date(g.rsvp_submitted_at).toLocaleDateString()
-                        : '—'}
+                        : '\u2014'}
                     </td>
                     <td className="row-actions">
+                      <button
+                        className="link-btn"
+                        onClick={() => handleToggleChild(g.id, g.is_child)}
+                      >
+                        {g.is_child ? 'Make adult' : 'Make child'}
+                      </button>
                       <button
                         className="link-btn"
                         onClick={() => handleRenameGuest(g.id, g.full_name)}
@@ -278,6 +304,19 @@ const AdminDashboard = ({ onSignedOut }) => {
                   }
                 }}
               />
+              <label className="admin-child-checkbox">
+                <input
+                  type="checkbox"
+                  checked={!!newGuestIsChildByFamily[f.id]}
+                  onChange={(e) =>
+                    setNewGuestIsChildByFamily((p) => ({
+                      ...p,
+                      [f.id]: e.target.checked,
+                    }))
+                  }
+                />
+                Child
+              </label>
               <button onClick={() => handleAddGuest(f.id)}>Add Guest</button>
             </div>
           </div>

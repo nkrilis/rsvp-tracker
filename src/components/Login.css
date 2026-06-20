@@ -134,3 +134,75 @@
     font-size: 1.75rem;
   }
 }
+
+/* Family disambiguation chooser */
+.family-chooser {
+  margin-bottom: 2rem;
+}
+
+.family-chooser-prompt {
+  font-size: 1rem;
+  color: #555;
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.family-choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.family-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #d0d0d0;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.family-choice:hover:not(:disabled) {
+  border-color: #000;
+  background-color: #f8f8f8;
+}
+
+.family-choice:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.family-choice-name {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #000;
+}
+
+.family-choice-members {
+  font-size: 0.9rem;
+  color: #777;
+  word-break: break-word;
+}
+
+.link-back-btn {
+  display: inline-block;
+  margin-top: 1rem;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.25rem 0;
+}
+
+.link-back-btn:hover:not(:disabled) {
+  color: #000;
+}

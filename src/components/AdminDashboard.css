@@ -1,4 +1,6 @@
 .admin-container {
+  width: 100%;
+  min-width: 0;
   max-width: 1100px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
@@ -71,13 +73,15 @@
 
 .admin-add-family {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 2rem;
 }
 
 .admin-add-family input,
 .admin-add-guest input {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   padding: 0.75rem;
   border: 2px solid #d0d0d0;
   border-radius: 4px;
@@ -115,6 +119,8 @@
   border-radius: 8px;
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.5rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .admin-family-header {
@@ -166,6 +172,8 @@
   text-align: left;
   padding: 0.5rem 0.6rem;
   border-bottom: 1px solid #eee;
+  vertical-align: top;
+  word-break: break-word;
 }
 
 .admin-guests th {
@@ -190,13 +198,107 @@
 
 .admin-add-guest {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.admin-child-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: #555;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.admin-child-checkbox input {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.guest-type-badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: #eee;
+  color: #555;
+}
+
+.guest-type-badge.child {
+  background: #e3f0ff;
+  color: #1d4e89;
 }
 
 @media (max-width: 700px) {
   .admin-guests {
     display: block;
+    width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-container {
+    padding: 1.25rem 1rem;
+  }
+
+  .admin-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .admin-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .admin-stats .stat {
+    font-size: 0.8rem;
+  }
+
+  .admin-stats .stat span {
+    font-size: 1.6rem;
+  }
+
+  .admin-add-family,
+  .admin-add-guest {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-add-family button,
+  .admin-add-guest button {
+    width: 100%;
+  }
+
+  .admin-family {
+    padding: 1rem;
+  }
+
+  .admin-family-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .admin-family-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .link-btn {
+    padding: 0.35rem 0;
   }
 }
 

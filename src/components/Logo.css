@@ -4,20 +4,16 @@
 }
 
 .logo-svg {
+  display: block;
+  margin: 0 auto;
+  width: auto;
+  height: 220px;
+  max-width: 100%;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
-.logo-text {
-  font-weight: 400;
-  letter-spacing: 2px;
-}
-
-.logo-subtitle {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.875rem;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: #666;
-  margin-top: -0.5rem;
-  font-weight: 300;
+@media (max-width: 640px) {
+  .logo-svg {
+    height: 150px;
+  }
 }

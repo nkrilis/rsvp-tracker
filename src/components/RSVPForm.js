@@ -4,6 +4,7 @@ import Logo from './Logo';
 import { submitFamilyRSVP } from '../services/rsvp';
 
 const MEAL_OPTIONS = ['Steak', 'Salmon'];
+const CHILD_MEAL_OPTIONS = ['Chicken Fingers and Fries'];
 
 const RSVPForm = ({ guestData, onLogout }) => {
   const { family, guests } = guestData;
@@ -12,6 +13,7 @@ const RSVPForm = ({ guestData, onLogout }) => {
     guests.map((g) => ({
       id: g.id,
       full_name: g.full_name,
+      is_child: g.is_child || false,
       church_attendance: g.church_attendance || '',
       reception_attendance: g.reception_attendance || '',
       meal_preference: g.meal_preference || '',
@@ -202,9 +204,11 @@ const RSVPForm = ({ guestData, onLogout }) => {
               {g.reception_attendance === 'Yes' && (
                 <>
                   <div className="form-section">
-                    <label className="form-label">Meal Preference</label>
+                    <label className="form-label">
+                      {g.is_child ? "Children's Meal" : 'Meal Preference'}
+                    </label>
                     <div className="radio-group">
-                      {MEAL_OPTIONS.map((meal) => (
+                      {(g.is_child ? CHILD_MEAL_OPTIONS : MEAL_OPTIONS).map((meal) => (
                         <label key={meal} className="radio-label">
                           <input
                             type="radio"

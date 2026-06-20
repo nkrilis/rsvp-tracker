@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Château Le Parc — line drawing · Elisabeth & Nicholas wedding suite -->
+<svg viewBox="0 0 380 130" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#8a7860" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" xmlns:xlink="http://www.w3.org/1999/xlink" width="1140" height="390">
+
+          <!-- Ground -->
+          <line x1="8" y1="120" x2="372" y2="120" stroke="#5a5040" stroke-width="0.4"/>
+
+          <!-- LEFT WING -->
+          <polyline points="8,88 8,52 128,52 128,88"/>
+          <line x1="8" y1="75" x2="128" y2="75" stroke-width="0.4"/>
+          <!-- 2F windows -->
+          <rect x="15" y="57" width="15" height="12" rx="0.3"/>
+          <rect x="36" y="57" width="15" height="12" rx="0.3"/>
+          <rect x="57" y="57" width="15" height="12" rx="0.3"/>
+          <rect x="78" y="57" width="15" height="12" rx="0.3"/>
+          <rect x="99" y="57" width="15" height="12" rx="0.3"/>
+          <!-- 1F windows -->
+          <rect x="15" y="79" width="15" height="18" rx="0.3"/>
+          <rect x="36" y="79" width="15" height="18" rx="0.3"/>
+          <rect x="57" y="79" width="15" height="18" rx="0.3"/>
+          <rect x="78" y="79" width="15" height="18" rx="0.3"/>
+          <rect x="99" y="79" width="15" height="18" rx="0.3"/>
+          <!-- Left lamp -->
+          <line x1="22" y1="48" x2="22" y2="120"/>
+          <line x1="16" y1="48" x2="28" y2="48"/>
+          <circle cx="16" cy="46" r="2" fill="#8a7860" stroke="none"/>
+          <circle cx="28" cy="46" r="2" fill="#8a7860" stroke="none"/>
+
+          <!-- CENTRE BLOCK -->
+          <polyline points="128,88 128,42 252,42 252,88"/>
+          <line x1="122" y1="42" x2="258" y2="42" stroke-width="1"/>
+
+          <!-- Dome drum -->
+          <rect x="163" y="24" width="54" height="19" rx="0.5"/>
+          <!-- Dome -->
+          <path d="M163,24 Q190,3 217,24" stroke-width="1.1"/>
+          <path d="M168,24 Q190,9 212,24" stroke-width="0.4"/>
+          <!-- Cupola -->
+          <line x1="190" y1="3" x2="190" y2="-4"/>
+          <line x1="186" y1="3" x2="194" y2="3" stroke-width="0.9"/>
+          <circle cx="190" cy="-5" r="1.5" fill="#8a7860" stroke="none"/>
+
+          <!-- Big arched window -->
+          <path d="M163,62 L163,88 L217,88 L217,62 Q190,38 163,62" stroke-width="0.9"/>
+          <path d="M167,62 L167,85 L213,85 L213,62 Q190,43 167,62" stroke-width="0.4"/>
+          <line x1="190" y1="44" x2="190" y2="85" stroke-width="0.4"/>
+          <line x1="167" y1="67" x2="213" y2="67" stroke-width="0.4"/>
+
+          <!-- Entry steps -->
+          <line x1="152" y1="120" x2="228" y2="120" stroke-width="1.2"/>
+          <line x1="155" y1="116" x2="225" y2="116"/>
+          <line x1="158" y1="112" x2="222" y2="112" stroke-width="0.6"/>
+
+          <!-- Columns -->
+          <line x1="161" y1="88" x2="161" y2="112"/>
+          <line x1="219" y1="88" x2="219" y2="112"/>
+
+          <!-- Upper centre windows -->
+          <rect x="133" y="46" width="20" height="13" rx="0.3"/>
+          <rect x="227" y="46" width="20" height="13" rx="0.3"/>
+
+          <!-- Topiary -->
+          <ellipse cx="150" cy="111" rx="4" ry="6"/>
+          <line x1="150" y1="117" x2="150" y2="120"/>
+          <ellipse cx="230" cy="111" rx="4" ry="6"/>
+          <line x1="230" y1="117" x2="230" y2="120"/>
+
+          <!-- RIGHT WING -->
+          <polyline points="252,88 252,52 372,52 372,88"/>
+          <line x1="252" y1="75" x2="372" y2="75" stroke-width="0.4"/>
+          <!-- 2F windows -->
+          <rect x="266" y="57" width="15" height="12" rx="0.3"/>
+          <rect x="287" y="57" width="15" height="12" rx="0.3"/>
+          <rect x="308" y="57" width="15" height="12" rx="0.3"/>
+          <rect x="329" y="57" width="15" height="12" rx="0.3"/>
+          <rect x="350" y="57" width="15" height="12" rx="0.3"/>
+          <!-- 1F windows -->
+          <rect x="266" y="79" width="15" height="18" rx="0.3"/>
+          <rect x="287" y="79" width="15" height="18" rx="0.3"/>
+          <rect x="308" y="79" width="15" height="18" rx="0.3"/>
+          <rect x="329" y="79" width="15" height="18" rx="0.3"/>
+          <rect x="350" y="79" width="15" height="18" rx="0.3"/>
+          <!-- Right lamp -->
+          <line x1="358" y1="48" x2="358" y2="120"/>
+          <line x1="352" y1="48" x2="364" y2="48"/>
+          <circle cx="352" cy="46" r="2" fill="#8a7860" stroke="none"/>
+          <circle cx="364" cy="46" r="2" fill="#8a7860" stroke="none"/>
+
+          <!-- Corner pilasters -->
+          <rect x="8" y="52" width="4" height="36"/>
+          <rect x="124" y="52" width="4" height="36"/>
+          <rect x="252" y="52" width="4" height="36"/>
+          <rect x="368" y="52" width="4" height="36"/>
+
+          <!-- Drapes -->
+          <!-- <path d="M42,88 Q38,74 33,62 Q42,69 42,57 Q51,69 50,62 Q45,74 47,88" fill="rgba(138,120,96,0.15)" stroke-width="0.4"/>
+          <path d="M338,88 Q342,74 347,62 Q338,69 338,57 Q329,69 330,62 Q335,74 333,88" fill="rgba(138,120,96,0.15)" stroke-width="0.4"/> -->
+        </svg>

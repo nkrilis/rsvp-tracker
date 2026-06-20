@@ -1,32 +1,18 @@
 import { supabase } from './supabaseClient';
 
+const GUEST_FIELDS =
+  'id, family_id, full_name, email, is_child, church_attendance, reception_attendance, meal_preference, dietary_restrictions, rsvp_submitted_at';
+
 /**
- * Look up a family by matching any one guest's full_name (case-insensitive).
- * Returns: { family: {id, family_name}, guests: [...] } or null.
+ * Load a family and all its guests by family id.
+ * Returns: { family: {id, family_name}, guests: [...] }.
  */
-export const findFamilyByGuestName = async (fullName) => {
-  const name = (fullName || '').trim();
-  if (!name) return null;
-
-  // Case-insensitive exact match on full_name
-  const { data: matches, error } = await supabase
-    .from('guests')
-    .select('id, family_id, full_name')
-    .ilike('full_name', name)
-    .limit(1);
-
-  if (error) throw error;
-  if (!matches || matches.length === 0) return null;
-
-  const familyId = matches[0].family_id;
-
+export const loadFamilyById = async (familyId) => {
   const [familyRes, guestsRes] = await Promise.all([
     supabase.from('families').select('id, family_name').eq('id', familyId).single(),
     supabase
       .from('guests')
-      .select(
-        'id, family_id, full_name, email, church_attendance, reception_attendance, meal_preference, dietary_restrictions, rsvp_submitted_at'
-      )
+      .select(GUEST_FIELDS)
       .eq('family_id', familyId)
       .order('created_at', { ascending: true }),
   ]);
@@ -35,6 +21,68 @@ export const findFamilyByGuestName = async (fullName) => {
   if (guestsRes.error) throw guestsRes.error;
 
   return { family: familyRes.data, guests: guestsRes.data || [] };
+};
+
+/**
+ * Look up a family by matching a guest's full_name AND the family name
+ * (both case-insensitive). Requiring both fields prevents collisions where
+ * two households contain a guest with the same name, and adds a light
+ * privacy gate so a name alone can't open another family's RSVP.
+ *
+ * Returns one of:
+ *   { status: 'ok', result: { family, guests } }
+ *   { status: 'not_found' }
+ *   { status: 'ambiguous', candidates: [{ id, family_name, memberNames }] }
+ *
+ * `ambiguous` only happens in the rare case where multiple households share
+ * both the same family name and a guest with the same name. The chooser
+ * uses each household's member names to tell them apart.
+ */
+export const findFamily = async ({ fullName, familyName }) => {
+  const name = (fullName || '').trim();
+  const fam = (familyName || '').trim();
+  if (!name || !fam) return { status: 'not_found' };
+
+  // 1) Guests whose name matches (may span multiple families).
+  const { data: matches, error } = await supabase
+    .from('guests')
+    .select('id, family_id, full_name')
+    .ilike('full_name', name);
+  if (error) throw error;
+  if (!matches || matches.length === 0) return { status: 'not_found' };
+
+  // 2) Narrow to the families whose name also matches.
+  const familyIds = [...new Set(matches.map((m) => m.family_id))];
+  const { data: families, error: famErr } = await supabase
+    .from('families')
+    .select('id, family_name')
+    .in('id', familyIds)
+    .ilike('family_name', fam);
+  if (famErr) throw famErr;
+  if (!families || families.length === 0) return { status: 'not_found' };
+
+  // 3) Exactly one household → proceed.
+  if (families.length === 1) {
+    const result = await loadFamilyById(families[0].id);
+    return { status: 'ok', result };
+  }
+
+  // 4) Still ambiguous → return candidates with member-name hints.
+  const candidates = await Promise.all(
+    families.map(async (f) => {
+      const { data: gs } = await supabase
+        .from('guests')
+        .select('full_name')
+        .eq('family_id', f.id)
+        .order('created_at', { ascending: true });
+      return {
+        id: f.id,
+        family_name: f.family_name,
+        memberNames: (gs || []).map((g) => g.full_name),
+      };
+    })
+  );
+  return { status: 'ambiguous', candidates };
 };
 
 /**
@@ -74,7 +122,7 @@ export const listFamilies = async () => {
   const { data, error } = await supabase
     .from('families')
     .select(
-      'id, family_name, address, created_at, guests(id, full_name, email, church_attendance, reception_attendance, meal_preference, dietary_restrictions, rsvp_submitted_at)'
+      'id, family_name, address, created_at, guests(id, full_name, email, is_child, church_attendance, reception_attendance, meal_preference, dietary_restrictions, rsvp_submitted_at)'
     )
     .order('created_at', { ascending: true });
   if (error) throw error;
@@ -104,10 +152,10 @@ export const deleteFamily = async (id) => {
   if (error) throw error;
 };
 
-export const addGuest = async (familyId, fullName, email = null) => {
+export const addGuest = async (familyId, fullName, isChild = false, email = null) => {
   const { data, error } = await supabase
     .from('guests')
-    .insert({ family_id: familyId, full_name: fullName, email })
+    .insert({ family_id: familyId, full_name: fullName, is_child: isChild, email })
     .select()
     .single();
   if (error) throw error;
