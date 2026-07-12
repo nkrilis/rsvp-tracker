@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import './AdminDashboard.css';
+import AddressAutocomplete from './AddressAutocomplete';
 import {
   listFamilies,
   createFamily,
@@ -17,6 +18,8 @@ const AdminDashboard = ({ onSignedOut }) => {
   const [error, setError] = useState('');
   const [newFamilyName, setNewFamilyName] = useState('');
   const [newFamilyAddress, setNewFamilyAddress] = useState('');
+  const [editingAddressId, setEditingAddressId] = useState(null);
+  const [editingAddressValue, setEditingAddressValue] = useState('');
   const [newGuestNameByFamily, setNewGuestNameByFamily] = useState({});
   const [newGuestIsChildByFamily, setNewGuestIsChildByFamily] = useState({});
 
@@ -64,12 +67,23 @@ const AdminDashboard = ({ onSignedOut }) => {
     }
   };
 
-  const handleEditAddress = async (id, current) => {
-    const next = window.prompt('Mailing address:', current || '');
-    if (next == null) return;
-    const trimmed = next.trim();
+  const handleEditAddress = (id, current) => {
+    setEditingAddressId(id);
+    setEditingAddressValue(current || '');
+  };
+
+  const handleCancelEditAddress = () => {
+    setEditingAddressId(null);
+    setEditingAddressValue('');
+  };
+
+  const handleSaveAddress = async () => {
+    if (!editingAddressId) return;
+    const trimmed = editingAddressValue.trim();
     try {
-      await updateFamily(id, { address: trimmed || null });
+      await updateFamily(editingAddressId, { address: trimmed || null });
+      setEditingAddressId(null);
+      setEditingAddressValue('');
       await refresh();
     } catch (err) {
       setError(err.message);
@@ -176,10 +190,9 @@ const AdminDashboard = ({ onSignedOut }) => {
           onChange={(e) => setNewFamilyName(e.target.value)}
           placeholder="New family name (e.g. The Smiths)"
         />
-        <input
-          type="text"
+        <AddressAutocomplete
           value={newFamilyAddress}
-          onChange={(e) => setNewFamilyAddress(e.target.value)}
+          onChange={setNewFamilyAddress}
           placeholder="Mailing address (optional)"
         />
         <button type="submit">Add Family</button>
@@ -193,11 +206,33 @@ const AdminDashboard = ({ onSignedOut }) => {
         families.map((f) => (
           <div key={f.id} className="admin-family">
             <div className="admin-family-header">
-              <div>
+              <div className="admin-family-heading">
                 <h2>{f.family_name}</h2>
-                <p className="admin-family-address">
-                  {f.address || <em>No address on file</em>}
-                </p>
+                {editingAddressId === f.id ? (
+                  <div className="admin-address-edit">
+                    <AddressAutocomplete
+                      value={editingAddressValue}
+                      onChange={setEditingAddressValue}
+                      placeholder="Search address"
+                      autoFocus
+                    />
+                    <div className="admin-address-edit-actions">
+                      <button className="link-btn" onClick={handleSaveAddress}>
+                        Save
+                      </button>
+                      <button
+                        className="link-btn"
+                        onClick={handleCancelEditAddress}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="admin-family-address">
+                    {f.address || <em>No address on file</em>}
+                  </p>
+                )}
               </div>
               <div className="admin-family-actions">
                 <button
@@ -206,12 +241,14 @@ const AdminDashboard = ({ onSignedOut }) => {
                 >
                   Rename
                 </button>
-                <button
-                  className="link-btn"
-                  onClick={() => handleEditAddress(f.id, f.address)}
-                >
-                  Edit Address
-                </button>
+                {editingAddressId !== f.id && (
+                  <button
+                    className="link-btn"
+                    onClick={() => handleEditAddress(f.id, f.address)}
+                  >
+                    Edit Address
+                  </button>
+                )}
                 <button
                   className="link-btn danger"
                   onClick={() => handleDeleteFamily(f.id, f.family_name)}
