@@ -23,8 +23,8 @@ const AdminDashboard = ({ onSignedOut }) => {
   const [newGuestNameByFamily, setNewGuestNameByFamily] = useState({});
   const [newGuestIsChildByFamily, setNewGuestIsChildByFamily] = useState({});
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
+  const refresh = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     setError('');
     try {
       const data = await listFamilies();
@@ -32,7 +32,7 @@ const AdminDashboard = ({ onSignedOut }) => {
     } catch (err) {
       setError(err.message || 'Failed to load.');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
@@ -48,7 +48,7 @@ const AdminDashboard = ({ onSignedOut }) => {
       await createFamily(name, newFamilyAddress.trim() || null);
       setNewFamilyName('');
       setNewFamilyAddress('');
-      await refresh();
+      await refresh({ silent: true });
     } catch (err) {
       setError(err.message);
     }
@@ -61,7 +61,9 @@ const AdminDashboard = ({ onSignedOut }) => {
     if (!trimmed || trimmed === current) return;
     try {
       await updateFamily(id, { family_name: trimmed });
-      await refresh();
+      setFamilies((prev) =>
+        prev.map((f) => (f.id === id ? { ...f, family_name: trimmed } : f))
+      );
     } catch (err) {
       setError(err.message);
     }
@@ -80,11 +82,15 @@ const AdminDashboard = ({ onSignedOut }) => {
   const handleSaveAddress = async () => {
     if (!editingAddressId) return;
     const trimmed = editingAddressValue.trim();
+    const id = editingAddressId;
+    const nextAddress = trimmed || null;
     try {
-      await updateFamily(editingAddressId, { address: trimmed || null });
+      await updateFamily(id, { address: nextAddress });
+      setFamilies((prev) =>
+        prev.map((f) => (f.id === id ? { ...f, address: nextAddress } : f))
+      );
       setEditingAddressId(null);
       setEditingAddressValue('');
-      await refresh();
     } catch (err) {
       setError(err.message);
     }
@@ -94,7 +100,7 @@ const AdminDashboard = ({ onSignedOut }) => {
     if (!window.confirm(`Delete family "${name}" and all its guests?`)) return;
     try {
       await deleteFamily(id);
-      await refresh();
+      setFamilies((prev) => prev.filter((f) => f.id !== id));
     } catch (err) {
       setError(err.message);
     }
@@ -105,10 +111,16 @@ const AdminDashboard = ({ onSignedOut }) => {
     if (!name) return;
     const isChild = !!newGuestIsChildByFamily[familyId];
     try {
-      await addGuest(familyId, name, isChild);
+      const guest = await addGuest(familyId, name, isChild);
       setNewGuestNameByFamily((p) => ({ ...p, [familyId]: '' }));
       setNewGuestIsChildByFamily((p) => ({ ...p, [familyId]: false }));
-      await refresh();
+      setFamilies((prev) =>
+        prev.map((f) =>
+          f.id === familyId
+            ? { ...f, guests: [...(f.guests || []), guest] }
+            : f
+        )
+      );
     } catch (err) {
       setError(err.message);
     }
@@ -117,7 +129,14 @@ const AdminDashboard = ({ onSignedOut }) => {
   const handleToggleChild = async (id, current) => {
     try {
       await updateGuest(id, { is_child: !current });
-      await refresh();
+      setFamilies((prev) =>
+        prev.map((f) => ({
+          ...f,
+          guests: (f.guests || []).map((g) =>
+            g.id === id ? { ...g, is_child: !current } : g
+          ),
+        }))
+      );
     } catch (err) {
       setError(err.message);
     }
@@ -130,7 +149,14 @@ const AdminDashboard = ({ onSignedOut }) => {
     if (!trimmed || trimmed === current) return;
     try {
       await updateGuest(id, { full_name: trimmed });
-      await refresh();
+      setFamilies((prev) =>
+        prev.map((f) => ({
+          ...f,
+          guests: (f.guests || []).map((g) =>
+            g.id === id ? { ...g, full_name: trimmed } : g
+          ),
+        }))
+      );
     } catch (err) {
       setError(err.message);
     }
@@ -140,7 +166,12 @@ const AdminDashboard = ({ onSignedOut }) => {
     if (!window.confirm(`Remove guest "${name}"?`)) return;
     try {
       await deleteGuest(id);
-      await refresh();
+      setFamilies((prev) =>
+        prev.map((f) => ({
+          ...f,
+          guests: (f.guests || []).filter((g) => g.id !== id),
+        }))
+      );
     } catch (err) {
       setError(err.message);
     }
