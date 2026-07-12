@@ -22,6 +22,14 @@ const AdminDashboard = ({ onSignedOut }) => {
   const [editingAddressValue, setEditingAddressValue] = useState('');
   const [newGuestNameByFamily, setNewGuestNameByFamily] = useState({});
   const [newGuestIsChildByFamily, setNewGuestIsChildByFamily] = useState({});
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowBackToTop(window.scrollY > 400);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const refresh = useCallback(async ({ silent = false } = {}) => {
     if (!silent) setLoading(true);
@@ -45,10 +53,17 @@ const AdminDashboard = ({ onSignedOut }) => {
     const name = newFamilyName.trim();
     if (!name) return;
     try {
-      await createFamily(name, newFamilyAddress.trim() || null);
+      const created = await createFamily(name, newFamilyAddress.trim() || null);
       setNewFamilyName('');
       setNewFamilyAddress('');
-      await refresh({ silent: true });
+      // Append with an empty guests array so the card renders immediately.
+      const withGuests = { ...created, guests: [] };
+      setFamilies((prev) => [...prev, withGuests]);
+      // Scroll to the newly-added family on the next tick.
+      setTimeout(() => {
+        const el = document.getElementById(`family-${created.id}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 0);
     } catch (err) {
       setError(err.message);
     }
@@ -427,6 +442,20 @@ const AdminDashboard = ({ onSignedOut }) => {
             </div>
           </div>
         ))
+      )}
+
+      {showBackToTop && (
+        <button
+          type="button"
+          className="admin-back-to-top"
+          onClick={() =>
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }
+          aria-label="Back to top"
+          title="Back to top"
+        >
+          ↑
+        </button>
       )}
     </div>
   );
