@@ -24,24 +24,27 @@ export const loadFamilyById = async (familyId) => {
 };
 
 /**
- * Look up a family by matching a guest's full_name AND the family name
- * (both case-insensitive). Requiring both fields prevents collisions where
- * two households contain a guest with the same name, and adds a light
- * privacy gate so a name alone can't open another family's RSVP.
+ * Look up a family by matching a guest's first name + family name in a
+ * single input string like "John Smiths".
+ *
+ * Parsing: the LAST whitespace-separated token is treated as the family
+ * name; everything before it is the first name. This lets both
+ * "John Smiths" and "John Paul Smiths" work.
  *
  * Returns one of:
  *   { status: 'ok', result: { family, guests } }
  *   { status: 'not_found' }
  *   { status: 'ambiguous', candidates: [{ id, family_name, memberNames }] }
- *
- * `ambiguous` only happens in the rare case where multiple households share
- * both the same family name and a guest with the same name. The chooser
- * uses each household's member names to tell them apart.
  */
-export const findFamily = async ({ fullName, familyName }) => {
-  const name = (fullName || '').trim();
-  const fam = (familyName || '').trim();
-  if (!name || !fam) return { status: 'not_found' };
+export const findFamily = async ({ fullName }) => {
+  const raw = (fullName || '').trim().replace(/\s+/g, ' ');
+  if (!raw) return { status: 'not_found' };
+
+  const parts = raw.split(' ');
+  if (parts.length < 2) return { status: 'not_found' };
+
+  const fam = parts[parts.length - 1];
+  const name = parts.slice(0, -1).join(' ');
 
   // 1) Guests whose name matches (may span multiple families).
   const { data: matches, error } = await supabase

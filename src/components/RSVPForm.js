@@ -52,7 +52,11 @@ const RSVPForm = ({ guestData, onLogout }) => {
   };
 
   const headerName =
-    guests.length === 1 ? guests[0].full_name : family?.family_name || 'Friends';
+    guests.length === 1
+      ? `${guests[0].full_name}${family?.family_name ? ' ' + family.family_name : ''}`
+      : family?.family_name
+        ? `The ${family.family_name}`
+        : 'Friends';
 
   return (
     <div className="rsvp-container">

@@ -5,7 +5,6 @@ import { findFamily, loadFamilyById } from '../services/rsvp';
 
 const Login = ({ onLoginSuccess }) => {
   const [fullName, setFullName] = useState('');
-  const [familyName, setFamilyName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [candidates, setCandidates] = useState(null);
@@ -17,7 +16,16 @@ const Login = ({ onLoginSuccess }) => {
     setLoading(true);
 
     try {
-      const res = await findFamily({ fullName, familyName });
+      const trimmed = fullName.trim().replace(/\s+/g, ' ');
+      if (!trimmed.includes(' ')) {
+        setError(
+          'Please enter your first name AND family name, for example "John Smiths".'
+        );
+        setLoading(false);
+        return;
+      }
+
+      const res = await findFamily({ fullName: trimmed });
 
       if (res.status === 'ok') {
         onLoginSuccess(res.result);
@@ -25,7 +33,7 @@ const Login = ({ onLoginSuccess }) => {
         setCandidates(res.candidates);
       } else {
         setError(
-          "We couldn't find your name on our guest list. Please check the spelling of your name and family name, or contact the couple."
+          "We couldn't find your name on our guest list. Please double-check the spelling of your first name and family name, or contact the couple."
         );
       }
     } catch (err) {
@@ -57,7 +65,10 @@ const Login = ({ onLoginSuccess }) => {
 
         <div className="login-welcome">
           <h2>Welcome</h2>
-          <p>Please enter your name and family name to access your family's RSVP</p>
+          <p>
+            Enter your first name followed by your family name
+            (e.g. <em>John Smiths</em>) to access your family's RSVP.
+          </p>
         </div>
 
         {candidates ? (
@@ -100,23 +111,11 @@ const Login = ({ onLoginSuccess }) => {
                 id="fullName"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Your Full Name"
+                placeholder="e.g. John Smiths"
                 required
                 className="form-input"
                 disabled={loading}
-              />
-            </div>
-
-            <div className="form-group">
-              <input
-                type="text"
-                id="familyName"
-                value={familyName}
-                onChange={(e) => setFamilyName(e.target.value)}
-                placeholder="Family Name (as on your invitation)"
-                required
-                className="form-input"
-                disabled={loading}
+                autoComplete="off"
               />
             </div>
 
