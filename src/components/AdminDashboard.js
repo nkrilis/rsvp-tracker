@@ -186,13 +186,14 @@ const AdminDashboard = ({ onSignedOut }) => {
     (acc, f) => {
       for (const g of f.guests || []) {
         acc.total += 1;
+        if (g.is_child) acc.children += 1;
         if (g.rsvp_submitted_at) acc.responded += 1;
         if (g.church_attendance === 'Yes') acc.church += 1;
         if (g.reception_attendance === 'Yes') acc.reception += 1;
       }
       return acc;
     },
-    { total: 0, responded: 0, church: 0, reception: 0 }
+    { total: 0, children: 0, responded: 0, church: 0, reception: 0 }
   );
 
   const familiesMissingAddress = families.filter(
@@ -221,6 +222,7 @@ const AdminDashboard = ({ onSignedOut }) => {
       <div className="admin-stats">
         <div className="stat"><span>{families.length}</span>Families</div>
         <div className="stat"><span>{stats.total}</span>Guests</div>
+        <div className="stat"><span>{stats.children}</span>Children</div>
         <div className="stat"><span>{stats.responded}</span>RSVPs in</div>
         <div className="stat"><span>{stats.church}</span>Church Yes</div>
         <div className="stat"><span>{stats.reception}</span>Reception Yes</div>
