@@ -350,3 +350,44 @@
   z-index: 10000 !important;
   font-family: inherit;
 }
+
+.admin-missing-addresses {
+  background: #fff8e1;
+  border: 1px solid #f0d97a;
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-missing-addresses-header {
+  font-size: 0.95rem;
+  color: #6b5100;
+  margin-bottom: 0.6rem;
+}
+
+.admin-missing-addresses-header strong {
+  font-size: 1.05rem;
+}
+
+.admin-missing-addresses-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.admin-missing-address-chip {
+  background: #fff;
+  border: 1px solid #d9b84a;
+  color: #4a3800;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-missing-address-chip:hover {
+  background: #fdefb8;
+  border-color: #b39229;
+}

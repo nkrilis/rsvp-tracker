@@ -195,6 +195,20 @@ const AdminDashboard = ({ onSignedOut }) => {
     { total: 0, responded: 0, church: 0, reception: 0 }
   );
 
+  const familiesMissingAddress = families.filter(
+    (f) => !f.address || !f.address.trim()
+  );
+
+  const jumpToFamilyAddress = (familyId) => {
+    const family = families.find((f) => f.id === familyId);
+    handleEditAddress(familyId, family?.address);
+    // Wait a tick so the editor renders before scrolling.
+    setTimeout(() => {
+      const el = document.getElementById(`family-${familyId}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  };
+
   return (
     <div className="admin-container">
       <div className="admin-header">
@@ -213,6 +227,28 @@ const AdminDashboard = ({ onSignedOut }) => {
       </div>
 
       {error && <div className="admin-error">{error}</div>}
+
+      {familiesMissingAddress.length > 0 && (
+        <div className="admin-missing-addresses">
+          <div className="admin-missing-addresses-header">
+            <strong>{familiesMissingAddress.length}</strong>{' '}
+            {familiesMissingAddress.length === 1 ? 'family is' : 'families are'}{' '}
+            missing an address:
+          </div>
+          <div className="admin-missing-addresses-list">
+            {familiesMissingAddress.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                className="admin-missing-address-chip"
+                onClick={() => jumpToFamilyAddress(f.id)}
+              >
+                {f.family_name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <form className="admin-add-family" onSubmit={handleCreateFamily}>
         <input
@@ -235,7 +271,7 @@ const AdminDashboard = ({ onSignedOut }) => {
         <p className="admin-empty">No families yet. Add one above.</p>
       ) : (
         families.map((f) => (
-          <div key={f.id} className="admin-family">
+          <div key={f.id} id={`family-${f.id}`} className="admin-family">
             <div className="admin-family-header">
               <div className="admin-family-heading">
                 <h2>{f.family_name}</h2>
