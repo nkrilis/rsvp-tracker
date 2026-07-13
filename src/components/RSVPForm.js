@@ -51,17 +51,9 @@ const RSVPForm = ({ guestData, onLogout }) => {
     }
   };
 
-  const pluralizeFamily = (name) => {
-    if (!name) return '';
-    return /s$/i.test(name) ? `${name}'` : `${name}s`;
-  };
-
-  const headerName =
-    guests.length === 1
-      ? `${guests[0].full_name}${family?.family_name ? ' ' + family.family_name : ''}`
-      : family?.family_name
-        ? `The ${pluralizeFamily(family.family_name)}`
-        : 'Friends';
+  const headerName = family?.family_name
+    ? `The ${family.family_name} Family`
+    : 'Friends';
 
   return (
     <div className="rsvp-container">
