@@ -3,8 +3,24 @@ import './RSVPForm.css';
 import Logo from './Logo';
 import { submitFamilyRSVP } from '../services/rsvp';
 
-const MEAL_OPTIONS = ['Steak', 'Salmon'];
-const CHILD_MEAL_OPTIONS = ['Chicken Fingers and Fries'];
+const MEAL_OPTIONS = [
+  { 
+    value: 'Beef Short Rib', 
+    label: 'Beef Short Rib', 
+    note: 'Contains gluten',
+    description: 'Slow braised in Red Wine, Beef Stock, Mire Poix. Served with Potato gratin, broccolini and red peppers.' 
+  },
+  { 
+    value: 'Salmon', 
+    label: 'Salmon', 
+    note: 'Contains dairy',
+    description: 'Seared filet with lemon, dill and butter. Served with Potato gratin, broccolini and red peppers.'
+  }
+];
+const CHILD_MEAL_OPTIONS = [
+  { value: 'Pasta', label: 'Pasta', note: null },
+  { value: 'Chicken Fingers and Fries', label: 'Chicken Fingers and Fries', note: null }
+];
 
 const RSVPForm = ({ guestData, onLogout }) => {
   const { family, guests } = guestData;
@@ -122,6 +138,80 @@ const RSVPForm = ({ guestData, onLogout }) => {
           </div>
         </div>
 
+        <div className="menu-section">
+          <h2>Menu</h2>
+          
+          <div className="menu-category">
+            <h3>Children's Menu</h3>
+            <div className="menu-item">
+              <p className="menu-item-name">Pasta</p>
+            </div>
+            <div className="menu-item">
+              <p className="menu-item-name">Chicken Fingers & Fries</p>
+            </div>
+            <div className="menu-item">
+              <p className="menu-item-name">Dessert</p>
+            </div>
+          </div>
+
+          <div className="menu-divider"></div>
+
+          <div className="menu-category">
+            <h3>Adult Menu</h3>
+            
+            <div className="menu-course">
+              <h4>Antipasto</h4>
+              <div className="menu-item">
+                <p className="menu-item-name">Sicilian Salad</p>
+                <p className="menu-item-description">
+                  Shaved Fennel, Belgian Endive, Celery, Frisée, Pickled Red Onion, 
+                  orange segments, crushed Sicilian olives in a balsamic vinaigrette.
+                </p>
+              </div>
+            </div>
+
+            <div className="menu-course">
+              <h4>Pasta</h4>
+              <div className="menu-item">
+                <p className="menu-item-name">Caserecce</p>
+                <p className="menu-item-description">
+                  Rose sauce with pancetta, portobellini mushrooms and peas.
+                </p>
+              </div>
+            </div>
+
+            <div className="menu-course">
+              <h4>Main (Your Choice)</h4>
+              <div className="menu-item">
+                <p className="menu-item-name">Beef Short Rib <span className="menu-allergen">*contains gluten*</span></p>
+                <p className="menu-item-description">
+                  Slow braised in Red Wine, Beef Stock, Mire Poix. Served with Potato gratin, broccolini and red peppers.
+                </p>
+              </div>
+              <div className="menu-item">
+                <p className="menu-item-name">Salmon <span className="menu-allergen">*contains dairy*</span></p>
+                <p className="menu-item-description">
+                  Seared filet with lemon, dill and butter. Served with Potato gratin, broccolini and red peppers.
+                </p>
+              </div>
+            </div>
+
+            <div className="menu-course">
+              <h4>Dessert</h4>
+              <div className="menu-item">
+                <p className="menu-item-name">Sticky Toffee Pudding</p>
+                <p className="menu-item-description">
+                  Served with Vanilla Ice Cream.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="menu-disclaimer">
+            <p><strong>Important:</strong> If you have allergies or dietary restrictions, please note them in the form below.</p>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="rsvp-form">
           <h2>Your RSVP</h2>
 
@@ -210,12 +300,12 @@ const RSVPForm = ({ guestData, onLogout }) => {
                     </label>
                     <div className="radio-group">
                       {(g.is_child ? CHILD_MEAL_OPTIONS : MEAL_OPTIONS).map((meal) => (
-                        <label key={meal} className="radio-label">
+                        <label key={meal.value} className="radio-label">
                           <input
                             type="radio"
                             name={`meal_${g.id}`}
-                            value={meal}
-                            checked={g.meal_preference === meal}
+                            value={meal.value}
+                            checked={g.meal_preference === meal.value}
                             onChange={(e) =>
                               updateGuestField(
                                 g.id,
@@ -225,7 +315,10 @@ const RSVPForm = ({ guestData, onLogout }) => {
                             }
                             required
                           />
-                          <span>{meal}</span>
+                          <span>
+                            {meal.label}
+                            {meal.note && <span className="meal-note"> ({meal.note})</span>}
+                          </span>
                         </label>
                       ))}
                     </div>
@@ -263,6 +356,36 @@ const RSVPForm = ({ guestData, onLogout }) => {
             {loading ? 'Saving...' : 'Save RSVP'}
           </button>
         </form>
+
+        <div className="faq-section">
+          <h2>Frequently Asked Questions</h2>
+          
+          <div className="faq-item">
+            <h3>Need a plus one?</h3>
+            <p>
+              We would love for you to bring a plus one. If we missed anyone, or you are a single invite 
+              and would like to bring a guest, please contact Nicholas <a href="tel:+16473308919">(647) 330-8919</a> or 
+              Elisabeth <a href="tel:+16472178146">(647) 217-8146</a>. Please note we will do our best to accommodate 
+              but no promises can be made. We appreciate your understanding.
+            </p>
+          </div>
+
+          <div className="faq-item">
+            <h3>What should I wear?</h3>
+            <p>
+              Please dress formal - black tie optional. Please note the bridal party will be wearing espresso brown.
+            </p>
+          </div>
+
+          <div className="faq-item">
+            <h3>Where can I park?</h3>
+            <p>
+              Both St. Peters Catholic Church and Chateau le Parc have parking lots available for you. 
+              Street parking is also available at the church. If you plan to drink, please arrange for an 
+              appropriate ride home.
+            </p>
+          </div>
+        </div>
 
         <div className="rsvp-footer">
           <p className="appreciation-text">

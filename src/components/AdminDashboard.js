@@ -23,6 +23,7 @@ const AdminDashboard = ({ onSignedOut }) => {
   const [newGuestNameByFamily, setNewGuestNameByFamily] = useState({});
   const [newGuestIsChildByFamily, setNewGuestIsChildByFamily] = useState({});
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const onScroll = () => setShowBackToTop(window.scrollY > 400);
@@ -225,6 +226,20 @@ const AdminDashboard = ({ onSignedOut }) => {
     }, 0);
   };
 
+  // Filter families based on search query
+  const filteredFamilies = families.filter((family) => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    const familyNameMatch = family.family_name?.toLowerCase().includes(query);
+    const addressMatch = family.address?.toLowerCase().includes(query);
+    const guestMatch = (family.guests || []).some((guest) =>
+      guest.full_name?.toLowerCase().includes(query)
+    );
+    
+    return familyNameMatch || addressMatch || guestMatch;
+  });
+
   return (
     <div className="admin-container">
       <div className="admin-header">
@@ -282,12 +297,41 @@ const AdminDashboard = ({ onSignedOut }) => {
         <button type="submit">Add Family</button>
       </form>
 
+      {families.length > 0 && (
+        <div className="admin-search">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search families, guests, or addresses..."
+            className="admin-search-input"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="admin-search-clear"
+              aria-label="Clear search"
+            >
+              ✕
+            </button>
+          )}
+          {searchQuery && (
+            <p className="admin-search-results">
+              Showing {filteredFamilies.length} of {families.length} families
+            </p>
+          )}
+        </div>
+      )}
+
       {loading ? (
         <p>Loading…</p>
       ) : families.length === 0 ? (
         <p className="admin-empty">No families yet. Add one above.</p>
+      ) : filteredFamilies.length === 0 ? (
+        <p className="admin-empty">No families match your search.</p>
       ) : (
-        families.map((f) => (
+        filteredFamilies.map((f) => (
           <div key={f.id} id={`family-${f.id}`} className="admin-family">
             <div className="admin-family-header">
               <div className="admin-family-heading">

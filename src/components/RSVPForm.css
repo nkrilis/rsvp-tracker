@@ -217,6 +217,13 @@
   color: #333;
 }
 
+.meal-note {
+  font-size: 0.875rem;
+  color: #888;
+  font-style: italic;
+  font-weight: 300;
+}
+
 .form-input {
   width: 100%;
   padding: 1rem;
@@ -322,6 +329,153 @@
   color: #333;
 }
 
+/* Menu Section */
+.menu-section {
+  background: linear-gradient(to bottom right, #f8f8f8, #ffffff);
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.menu-section h2 {
+  font-size: 1.875rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #000;
+  font-weight: 400;
+}
+
+.menu-category {
+  margin-bottom: 2rem;
+}
+
+.menu-category h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #000;
+  font-weight: 500;
+  border-bottom: 2px solid #000;
+  padding-bottom: 0.5rem;
+}
+
+.menu-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #d0d0d0, transparent);
+  margin: 2rem 0;
+}
+
+.menu-course {
+  margin-bottom: 1.5rem;
+}
+
+.menu-course h4 {
+  font-size: 1.125rem;
+  margin-bottom: 0.75rem;
+  color: #333;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.menu-item {
+  margin-bottom: 1rem;
+  padding-left: 1rem;
+}
+
+.menu-item-name {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
+}
+
+.menu-item-description {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.6;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.menu-allergen {
+  font-size: 0.875rem;
+  color: #c00;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.menu-disclaimer {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #fff8e1;
+  border-left: 3px solid #ffa000;
+  border-radius: 4px;
+}
+
+.menu-disclaimer p {
+  font-size: 0.9375rem;
+  color: #555;
+  margin: 0;
+}
+
+.menu-disclaimer strong {
+  color: #000;
+}
+
+/* FAQ Section */
+.faq-section {
+  background: linear-gradient(to bottom right, #f8f8f8, #ffffff);
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.faq-section h2 {
+  font-size: 1.875rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #000;
+  font-weight: 400;
+}
+
+.faq-item {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.faq-item h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  color: #000;
+  font-weight: 500;
+}
+
+.faq-item p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #555;
+}
+
+.faq-item a {
+  color: #000;
+  text-decoration: none;
+  border-bottom: 1px solid #000;
+  transition: opacity 0.3s ease;
+}
+
+.faq-item a:hover {
+  opacity: 0.7;
+}
+
 @media (max-width: 640px) {
   .rsvp-container {
     padding: 20px 12px;
@@ -378,6 +532,28 @@
 
   .form-label {
     font-size: 1.05rem;
+  }
+
+  .menu-section,
+  .faq-section {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .menu-section h2,
+  .faq-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .menu-category h3 {
+    font-size: 1.25rem;
+  }
+
+  .menu-item {
+    padding-left: 0.5rem;
+  }
+
+  .faq-item h3 {
+    font-size: 1.125rem;
   }
 }
 

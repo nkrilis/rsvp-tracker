@@ -69,6 +69,10 @@ const Login = ({ onLoginSuccess }) => {
             Enter your first name followed by your family name
             (e.g. <em>John Smiths</em>) to access your family's RSVP.
           </p>
+          <p className="login-tip">
+            <strong>Tip:</strong> If your name doesn't work, try using your spouse's last name, 
+            as some families may be registered under different surnames.
+          </p>
         </div>
 
         {candidates ? (

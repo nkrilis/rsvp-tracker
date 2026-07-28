@@ -35,6 +35,22 @@
   font-weight: 300;
 }
 
+.login-tip {
+  font-size: 0.9375rem;
+  color: #888;
+  font-weight: 300;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #f8f8f8;
+  border-left: 3px solid #d0d0d0;
+  border-radius: 4px;
+}
+
+.login-tip strong {
+  color: #555;
+  font-weight: 500;
+}
+
 .login-form {
   margin-bottom: 2rem;
 }
