@@ -484,70 +484,72 @@ const AdminDashboard = ({ onSignedOut }) => {
               </div>
             </div>
 
-            <table className="admin-guests">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Church</th>
-                  <th>Reception</th>
-                  <th>Meal</th>
-                  <th>Dietary</th>
-                  <th>Responded</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {(f.guests || []).length === 0 && (
+            <div className="admin-guests-wrap">
+              <table className="admin-guests">
+                <thead>
                   <tr>
-                    <td colSpan={8} className="muted">
-                      No guests yet.
-                    </td>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Church</th>
+                    <th>Reception</th>
+                    <th>Meal</th>
+                    <th>Dietary</th>
+                    <th>Responded</th>
+                    <th></th>
                   </tr>
-                )}
-                {(f.guests || []).map((g) => (
-                  <tr key={g.id}>
-                    <td>{g.full_name}</td>
-                    <td>
-                      <span
-                        className={`guest-type-badge${g.is_child ? ' child' : ''}`}
-                      >
-                        {g.is_child ? 'Child' : 'Adult'}
-                      </span>
-                    </td>
-                    <td>{g.church_attendance || '\u2014'}</td>
-                    <td>{g.reception_attendance || '\u2014'}</td>
-                    <td>{g.meal_preference || '\u2014'}</td>
-                    <td>{g.dietary_restrictions || '\u2014'}</td>
-                    <td>
-                      {g.rsvp_submitted_at
-                        ? new Date(g.rsvp_submitted_at).toLocaleDateString()
-                        : '\u2014'}
-                    </td>
-                    <td className="row-actions">
-                      <button
-                        className="link-btn"
-                        onClick={() => handleToggleChild(g.id, g.is_child)}
-                      >
-                        {g.is_child ? 'Make adult' : 'Make child'}
-                      </button>
-                      <button
-                        className="link-btn"
-                        onClick={() => handleRenameGuest(g.id, g.full_name)}
-                      >
-                        Rename
-                      </button>
-                      <button
-                        className="link-btn danger"
-                        onClick={() => handleDeleteGuest(g.id, g.full_name)}
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(f.guests || []).length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="muted">
+                        No guests yet.
+                      </td>
+                    </tr>
+                  )}
+                  {(f.guests || []).map((g) => (
+                    <tr key={g.id}>
+                      <td>{g.full_name}</td>
+                      <td>
+                        <span
+                          className={`guest-type-badge${g.is_child ? ' child' : ''}`}
+                        >
+                          {g.is_child ? 'Child' : 'Adult'}
+                        </span>
+                      </td>
+                      <td>{g.church_attendance || '\u2014'}</td>
+                      <td>{g.reception_attendance || '\u2014'}</td>
+                      <td>{g.meal_preference || '\u2014'}</td>
+                      <td className="dietary-cell">{g.dietary_restrictions || '\u2014'}</td>
+                      <td>
+                        {g.rsvp_submitted_at
+                          ? new Date(g.rsvp_submitted_at).toLocaleDateString()
+                          : '\u2014'}
+                      </td>
+                      <td className="row-actions">
+                        <button
+                          className="link-btn"
+                          onClick={() => handleToggleChild(g.id, g.is_child)}
+                        >
+                          {g.is_child ? 'Make adult' : 'Make child'}
+                        </button>
+                        <button
+                          className="link-btn"
+                          onClick={() => handleRenameGuest(g.id, g.full_name)}
+                        >
+                          Rename
+                        </button>
+                        <button
+                          className="link-btn danger"
+                          onClick={() => handleDeleteGuest(g.id, g.full_name)}
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             <div className="admin-add-guest">
               <input

@@ -274,10 +274,15 @@
   color: #c00;
 }
 
+.admin-guests-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
 .admin-guests {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1rem;
   font-size: 0.95rem;
 }
 
@@ -287,6 +292,13 @@
   padding: 0.5rem 0.6rem;
   border-bottom: 1px solid #eee;
   vertical-align: top;
+}
+
+/* Let the dietary column wrap long text without overlapping neighbours. */
+.admin-guests .dietary-cell {
+  min-width: 160px;
+  max-width: 260px;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 
@@ -296,6 +308,7 @@
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: 1px;
+  white-space: nowrap;
 }
 
 .admin-guests .muted {
@@ -308,6 +321,11 @@
   display: flex;
   gap: 0.25rem;
   justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+.admin-guests .row-actions .link-btn {
+  white-space: nowrap;
 }
 
 .admin-add-guest {
