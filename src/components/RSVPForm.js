@@ -22,15 +22,23 @@ const RSVPForm = ({ guestData, onLogout }) => {
   const { family, guests } = guestData;
 
   const [guestForms, setGuestForms] = useState(
-    guests.map((g) => ({
-      id: g.id,
-      full_name: g.full_name,
-      is_child: g.is_child || false,
-      church_attendance: g.church_attendance || '',
-      reception_attendance: g.reception_attendance || '',
-      meal_preference: g.meal_preference || '',
-      dietary_restrictions: g.dietary_restrictions || '',
-    }))
+    guests.map((g) => {
+      // For children attending reception, ensure meal_preference is 'Chicken Fingers and Fries'
+      let mealPref = g.meal_preference || '';
+      if (g.is_child && g.reception_attendance === 'Yes') {
+        mealPref = 'Chicken Fingers and Fries';
+      }
+      
+      return {
+        id: g.id,
+        full_name: g.full_name,
+        is_child: g.is_child || false,
+        church_attendance: g.church_attendance || '',
+        reception_attendance: g.reception_attendance || '',
+        meal_preference: mealPref,
+        dietary_restrictions: g.dietary_restrictions || '',
+      };
+    })
   );
 
   const [loading, setLoading] = useState(false);
@@ -47,7 +55,7 @@ const RSVPForm = ({ guestData, onLogout }) => {
         // Auto-set meal for children when they select reception attendance
         if (field === 'reception_attendance' && g.is_child) {
           if (value === 'Yes') {
-            updated.meal_preference = 'Pasta';
+            updated.meal_preference = 'Chicken Fingers and Fries';
           } else {
             updated.meal_preference = '';
           }
@@ -155,7 +163,7 @@ const RSVPForm = ({ guestData, onLogout }) => {
           <div className="menu-category">
             <h3>Children's Menu</h3>
             <div className="menu-item">
-              <p className="menu-item-name">Pasta</p>
+              <p className="menu-item-name">Chicken Fingers and Fries</p>
               <p className="menu-item-description">(Included for all children)</p>
             </div>
             <div className="menu-item">
@@ -336,7 +344,7 @@ const RSVPForm = ({ guestData, onLogout }) => {
                   {g.is_child && (
                     <div className="form-section">
                       <p className="child-meal-info">
-                        <strong>Children's Meal:</strong> Pasta (included for all children)
+                        <strong>Children's Meal:</strong> Chicken Fingers and Fries (included for all children)
                       </p>
                     </div>
                   )}

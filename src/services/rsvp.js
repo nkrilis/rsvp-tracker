@@ -97,30 +97,55 @@ export const findFamily = async ({ fullName }) => {
 
 /**
  * Submit RSVP for every guest in a family.
- * `guests` is an array of { id, church_attendance, reception_attendance,
+ * `guests` is an array of { id, is_child, church_attendance, reception_attendance,
  * meal_preference, dietary_restrictions }.
  */
 export const submitFamilyRSVP = async (guests) => {
   const now = new Date().toISOString();
+  
+  // Validate meal preferences before submitting
+  for (const g of guests) {
+    if (g.reception_attendance === 'Yes' && !g.is_child) {
+      // Adults must select a meal
+      if (!g.meal_preference || !['Beef Short Rib', 'Salmon'].includes(g.meal_preference)) {
+        throw new Error(`Adult guest must select a meal preference`);
+      }
+    }
+  }
+  
   // Run updates in parallel
   const results = await Promise.all(
-    guests.map((g) =>
-      supabase
+    guests.map((g) => {
+      // For children attending reception, always set meal to 'Chicken Fingers and Fries'
+      // For adults, use their selected meal preference
+      // For anyone not attending reception, set to null
+      let mealPref = null;
+      if (g.reception_attendance === 'Yes') {
+        if (g.is_child) {
+          mealPref = 'Chicken Fingers and Fries';
+        } else {
+          mealPref = ['Beef Short Rib', 'Salmon'].includes(g.meal_preference) 
+            ? g.meal_preference 
+            : null;
+        }
+      }
+      
+      return supabase
         .from('guests')
         .update({
           church_attendance: g.church_attendance || null,
           reception_attendance: g.reception_attendance || null,
-          meal_preference:
-            g.reception_attendance === 'Yes' ? g.meal_preference || null : null,
+          meal_preference: mealPref,
           dietary_restrictions:
             g.reception_attendance === 'Yes'
               ? g.dietary_restrictions || null
               : null,
           rsvp_submitted_at: now,
         })
-        .eq('id', g.id)
-    )
+        .eq('id', g.id);
+    })
   );
+  
   const firstError = results.find((r) => r.error);
   if (firstError) throw firstError.error;
   return true;
@@ -163,9 +188,18 @@ export const deleteFamily = async (id) => {
 };
 
 export const addGuest = async (familyId, fullName, isChild = false, email = null) => {
+  // Set default meal preference: 'Chicken Fingers and Fries' for children, null for adults
+  const mealPreference = isChild ? 'Chicken Fingers and Fries' : null;
+  
   const { data, error } = await supabase
     .from('guests')
-    .insert({ family_id: familyId, full_name: fullName, is_child: isChild, email })
+    .insert({ 
+      family_id: familyId, 
+      full_name: fullName, 
+      is_child: isChild, 
+      email,
+      meal_preference: mealPreference
+    })
     .select()
     .single();
   if (error) throw error;
