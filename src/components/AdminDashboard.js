@@ -24,6 +24,7 @@ const AdminDashboard = ({ onSignedOut }) => {
   const [newGuestIsChildByFamily, setNewGuestIsChildByFamily] = useState({});
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState(null);
 
   useEffect(() => {
     const onScroll = () => setShowBackToTop(window.scrollY > 400);
@@ -47,6 +48,29 @@ const AdminDashboard = ({ onSignedOut }) => {
 
   useEffect(() => {
     refresh();
+  }, [refresh]);
+
+  // Auto-refresh the data every 15 seconds (silently, so no loading flicker)
+  // to keep RSVP stats and guest info up to date.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refresh({ silent: true });
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [refresh]);
+
+  // Refresh whenever the admin tab regains focus / becomes visible again.
+  useEffect(() => {
+    const onFocus = () => refresh({ silent: true });
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') refresh({ silent: true });
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [refresh]);
 
   const handleCreateFamily = async (e) => {
@@ -243,6 +267,37 @@ const AdminDashboard = ({ onSignedOut }) => {
     return familyNameMatch || addressMatch || guestMatch;
   });
 
+  // Determine whether a family matches the active stat filter.
+  const familyMatchesFilter = (family) => {
+    const guests = family.guests || [];
+    switch (activeFilter) {
+      case 'children':
+        return guests.some((g) => g.is_child);
+      case 'responded':
+        return guests.some((g) => g.rsvp_submitted_at);
+      case 'church':
+        return guests.some((g) => g.church_attendance === 'Yes');
+      case 'reception':
+        return guests.some((g) => g.reception_attendance === 'Yes');
+      default:
+        return true;
+    }
+  };
+
+  // Apply both the search query and the active stat filter.
+  const visibleFamilies = filteredFamilies.filter(familyMatchesFilter);
+
+  const toggleFilter = (key) => {
+    setActiveFilter((prev) => (prev === key ? null : key));
+  };
+
+  const filterLabels = {
+    children: 'families with children',
+    responded: 'families who have RSVP’d',
+    church: 'families attending the church',
+    reception: 'families attending the reception',
+  };
+
   return (
     <div className="admin-container">
       <div className="admin-header">
@@ -255,11 +310,51 @@ const AdminDashboard = ({ onSignedOut }) => {
       <div className="admin-stats">
         <div className="stat"><span>{families.length}</span>Families</div>
         <div className="stat"><span>{stats.total}</span>Guests</div>
-        <div className="stat"><span>{stats.children}</span>Children</div>
-        <div className="stat"><span>{stats.responded}</span>RSVPs in</div>
-        <div className="stat"><span>{stats.church}</span>Church Yes</div>
-        <div className="stat"><span>{stats.reception}</span>Reception Yes</div>
+        <button
+          type="button"
+          className={`stat stat-clickable${activeFilter === 'children' ? ' active' : ''}`}
+          onClick={() => toggleFilter('children')}
+        >
+          <span>{stats.children}</span>Children
+        </button>
+        <button
+          type="button"
+          className={`stat stat-clickable${activeFilter === 'responded' ? ' active' : ''}`}
+          onClick={() => toggleFilter('responded')}
+        >
+          <span>{stats.responded}</span>RSVPs in
+        </button>
+        <button
+          type="button"
+          className={`stat stat-clickable${activeFilter === 'church' ? ' active' : ''}`}
+          onClick={() => toggleFilter('church')}
+        >
+          <span>{stats.church}</span>Church Yes
+        </button>
+        <button
+          type="button"
+          className={`stat stat-clickable${activeFilter === 'reception' ? ' active' : ''}`}
+          onClick={() => toggleFilter('reception')}
+        >
+          <span>{stats.reception}</span>Reception Yes
+        </button>
       </div>
+
+      {activeFilter && (
+        <div className="admin-active-filter">
+          <span>
+            Showing {visibleFamilies.length}{' '}
+            {filterLabels[activeFilter] || 'families'}
+          </span>
+          <button
+            type="button"
+            className="admin-active-filter-clear"
+            onClick={() => setActiveFilter(null)}
+          >
+            Clear filter ✕
+          </button>
+        </div>
+      )}
 
       {error && <div className="admin-error">{error}</div>}
 
@@ -321,7 +416,7 @@ const AdminDashboard = ({ onSignedOut }) => {
           )}
           {searchQuery && (
             <p className="admin-search-results">
-              Showing {filteredFamilies.length} of {families.length} families
+              Showing {visibleFamilies.length} of {families.length} families
             </p>
           )}
         </div>
@@ -331,10 +426,10 @@ const AdminDashboard = ({ onSignedOut }) => {
         <p>Loading…</p>
       ) : families.length === 0 ? (
         <p className="admin-empty">No families yet. Add one above.</p>
-      ) : filteredFamilies.length === 0 ? (
-        <p className="admin-empty">No families match your search.</p>
+      ) : visibleFamilies.length === 0 ? (
+        <p className="admin-empty">No families match your filters.</p>
       ) : (
-        filteredFamilies.map((f) => (
+        visibleFamilies.map((f) => (
           <div key={f.id} id={`family-${f.id}`} className="admin-family">
             <div className="admin-family-header">
               <div className="admin-family-heading">
