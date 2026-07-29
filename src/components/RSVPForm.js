@@ -17,10 +17,6 @@ const MEAL_OPTIONS = [
     description: 'Seared filet with lemon, dill and butter. Served with Potato gratin, broccolini and red peppers.'
   }
 ];
-const CHILD_MEAL_OPTIONS = [
-  { value: 'Pasta', label: 'Pasta', note: null },
-  { value: 'Chicken Fingers and Fries', label: 'Chicken Fingers and Fries', note: null }
-];
 
 const RSVPForm = ({ guestData, onLogout }) => {
   const { family, guests } = guestData;
@@ -43,7 +39,22 @@ const RSVPForm = ({ guestData, onLogout }) => {
 
   const updateGuestField = (id, field, value) => {
     setGuestForms((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, [field]: value } : g))
+      prev.map((g) => {
+        if (g.id !== id) return g;
+        
+        const updated = { ...g, [field]: value };
+        
+        // Auto-set meal for children when they select reception attendance
+        if (field === 'reception_attendance' && g.is_child) {
+          if (value === 'Yes') {
+            updated.meal_preference = 'Pasta';
+          } else {
+            updated.meal_preference = '';
+          }
+        }
+        
+        return updated;
+      })
     );
   };
 
@@ -145,9 +156,7 @@ const RSVPForm = ({ guestData, onLogout }) => {
             <h3>Children's Menu</h3>
             <div className="menu-item">
               <p className="menu-item-name">Pasta</p>
-            </div>
-            <div className="menu-item">
-              <p className="menu-item-name">Chicken Fingers & Fries</p>
+              <p className="menu-item-description">(Included for all children)</p>
             </div>
             <div className="menu-item">
               <p className="menu-item-name">Dessert</p>
@@ -294,35 +303,43 @@ const RSVPForm = ({ guestData, onLogout }) => {
 
               {g.reception_attendance === 'Yes' && (
                 <>
-                  <div className="form-section">
-                    <label className="form-label">
-                      {g.is_child ? "Children's Meal" : 'Meal Preference'}
-                    </label>
-                    <div className="radio-group">
-                      {(g.is_child ? CHILD_MEAL_OPTIONS : MEAL_OPTIONS).map((meal) => (
-                        <label key={meal.value} className="radio-label">
-                          <input
-                            type="radio"
-                            name={`meal_${g.id}`}
-                            value={meal.value}
-                            checked={g.meal_preference === meal.value}
-                            onChange={(e) =>
-                              updateGuestField(
-                                g.id,
-                                'meal_preference',
-                                e.target.value
-                              )
-                            }
-                            required
-                          />
-                          <span>
-                            {meal.label}
-                            {meal.note && <span className="meal-note"> ({meal.note})</span>}
-                          </span>
-                        </label>
-                      ))}
+                  {!g.is_child && (
+                    <div className="form-section">
+                      <label className="form-label">Meal Preference</label>
+                      <div className="radio-group">
+                        {MEAL_OPTIONS.map((meal) => (
+                          <label key={meal.value} className="radio-label">
+                            <input
+                              type="radio"
+                              name={`meal_${g.id}`}
+                              value={meal.value}
+                              checked={g.meal_preference === meal.value}
+                              onChange={(e) =>
+                                updateGuestField(
+                                  g.id,
+                                  'meal_preference',
+                                  e.target.value
+                                )
+                              }
+                              required
+                            />
+                            <span>
+                              {meal.label}
+                              {meal.note && <span className="meal-note"> ({meal.note})</span>}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {g.is_child && (
+                    <div className="form-section">
+                      <p className="child-meal-info">
+                        <strong>Children's Meal:</strong> Pasta (included for all children)
+                      </p>
+                    </div>
+                  )}
 
                   <div className="form-section">
                     <label

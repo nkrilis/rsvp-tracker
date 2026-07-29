@@ -25,11 +25,10 @@ export const loadFamilyById = async (familyId) => {
 
 /**
  * Look up a family by matching a guest's first name + family name in a
- * single input string like "John Smiths".
+ * single input string like "John Smiths" or "Christin Di Stefano".
  *
- * Parsing: the LAST whitespace-separated token is treated as the family
- * name; everything before it is the first name. This lets both
- * "John Smiths" and "John Paul Smiths" work.
+ * Parsing: Tries multiple strategies to split first name from family name
+ * to handle multi-word surnames (e.g., "Di Stefano", "Van Der Berg").
  *
  * Returns one of:
  *   { status: 'ok', result: { family, guests } }
@@ -43,49 +42,57 @@ export const findFamily = async ({ fullName }) => {
   const parts = raw.split(' ');
   if (parts.length < 2) return { status: 'not_found' };
 
-  const fam = parts[parts.length - 1];
-  const name = parts.slice(0, -1).join(' ');
+  // Try different parsing strategies: split at each possible position
+  // from right to left (family name can be 1, 2, or more words)
+  for (let familyNameWordCount = 1; familyNameWordCount < parts.length; familyNameWordCount++) {
+    const splitIndex = parts.length - familyNameWordCount;
+    const name = parts.slice(0, splitIndex).join(' ');
+    const fam = parts.slice(splitIndex).join(' ');
 
-  // 1) Guests whose name matches (may span multiple families).
-  const { data: matches, error } = await supabase
-    .from('guests')
-    .select('id, family_id, full_name')
-    .ilike('full_name', name);
-  if (error) throw error;
-  if (!matches || matches.length === 0) return { status: 'not_found' };
+    // 1) Guests whose first name matches (may span multiple families).
+    const { data: matches, error } = await supabase
+      .from('guests')
+      .select('id, family_id, full_name')
+      .ilike('full_name', name);
+    if (error) throw error;
+    if (!matches || matches.length === 0) continue; // Try next parsing
 
-  // 2) Narrow to the families whose name also matches.
-  const familyIds = [...new Set(matches.map((m) => m.family_id))];
-  const { data: families, error: famErr } = await supabase
-    .from('families')
-    .select('id, family_name')
-    .in('id', familyIds)
-    .ilike('family_name', fam);
-  if (famErr) throw famErr;
-  if (!families || families.length === 0) return { status: 'not_found' };
+    // 2) Narrow to the families whose name also matches.
+    const familyIds = [...new Set(matches.map((m) => m.family_id))];
+    const { data: families, error: famErr } = await supabase
+      .from('families')
+      .select('id, family_name')
+      .in('id', familyIds)
+      .ilike('family_name', fam);
+    if (famErr) throw famErr;
+    if (!families || families.length === 0) continue; // Try next parsing
 
-  // 3) Exactly one household → proceed.
-  if (families.length === 1) {
-    const result = await loadFamilyById(families[0].id);
-    return { status: 'ok', result };
+    // 3) Exactly one household → proceed.
+    if (families.length === 1) {
+      const result = await loadFamilyById(families[0].id);
+      return { status: 'ok', result };
+    }
+
+    // 4) Still ambiguous → return candidates with member-name hints.
+    const candidates = await Promise.all(
+      families.map(async (f) => {
+        const { data: gs } = await supabase
+          .from('guests')
+          .select('full_name')
+          .eq('family_id', f.id)
+          .order('created_at', { ascending: true });
+        return {
+          id: f.id,
+          family_name: f.family_name,
+          memberNames: (gs || []).map((g) => g.full_name),
+        };
+      })
+    );
+    return { status: 'ambiguous', candidates };
   }
 
-  // 4) Still ambiguous → return candidates with member-name hints.
-  const candidates = await Promise.all(
-    families.map(async (f) => {
-      const { data: gs } = await supabase
-        .from('guests')
-        .select('full_name')
-        .eq('family_id', f.id)
-        .order('created_at', { ascending: true });
-      return {
-        id: f.id,
-        family_name: f.family_name,
-        memberNames: (gs || []).map((g) => g.full_name),
-      };
-    })
-  );
-  return { status: 'ambiguous', candidates };
+  // None of the parsing strategies found a match
+  return { status: 'not_found' };
 };
 
 /**

@@ -144,12 +144,15 @@ const AdminDashboard = ({ onSignedOut }) => {
 
   const handleToggleChild = async (id, current) => {
     try {
-      await updateGuest(id, { is_child: !current });
+      // When toggling to child, automatically set meal to Pasta
+      // When toggling to adult, clear meal preference since the valid options differ
+      const newMealPreference = !current ? 'Pasta' : null;
+      await updateGuest(id, { is_child: !current, meal_preference: newMealPreference });
       setFamilies((prev) =>
         prev.map((f) => ({
           ...f,
           guests: (f.guests || []).map((g) =>
-            g.id === id ? { ...g, is_child: !current } : g
+            g.id === id ? { ...g, is_child: !current, meal_preference: newMealPreference } : g
           ),
         }))
       );

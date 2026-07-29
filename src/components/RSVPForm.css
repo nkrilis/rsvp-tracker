@@ -224,6 +224,21 @@
   font-weight: 300;
 }
 
+.child-meal-info {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  padding: 0.75rem 1rem;
+  background: #f8f8f8;
+  border-left: 3px solid #d0d0d0;
+  border-radius: 4px;
+  margin: 0;
+}
+
+.child-meal-info strong {
+  color: #333;
+}
+
 .form-input {
   width: 100%;
   padding: 1rem;
