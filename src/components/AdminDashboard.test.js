@@ -36,7 +36,7 @@ const SAMPLE = [
         is_child: false,
         church_attendance: 'Yes',
         reception_attendance: 'Yes',
-        meal_preference: 'Steak',
+        meal_preference: 'Beef Short Rib',
         dietary_restrictions: '',
         rsvp_submitted_at: '2026-01-01T00:00:00Z',
       },
@@ -46,7 +46,7 @@ const SAMPLE = [
         is_child: true,
         church_attendance: 'No',
         reception_attendance: 'Yes',
-        meal_preference: 'Salmon',
+        meal_preference: 'Chicken Fingers and Fries',
         dietary_restrictions: 'Nuts',
         rsvp_submitted_at: null,
       },
@@ -57,6 +57,9 @@ const SAMPLE = [
 beforeEach(() => {
   jest.clearAllMocks();
   listFamilies.mockResolvedValue(SAMPLE);
+  // jsdom does not implement scrollIntoView, which the dashboard calls after
+  // appending a newly-created family.
+  Element.prototype.scrollIntoView = jest.fn();
 });
 
 describe('AdminDashboard', () => {
@@ -83,7 +86,7 @@ describe('AdminDashboard', () => {
   });
 
   test('adding a family calls createFamily and refreshes', async () => {
-    createFamily.mockResolvedValue({ id: 'f2' });
+    createFamily.mockResolvedValue({ id: 'f2', family_name: 'The Joneses', address: '2 Oak Ave' });
     render(<AdminDashboard onSignedOut={jest.fn()} />);
     await screen.findByText('The Smiths');
 
@@ -99,9 +102,9 @@ describe('AdminDashboard', () => {
 
     await waitFor(() => {
       expect(createFamily).toHaveBeenCalledWith('The Joneses', '2 Oak Ave');
-      // refresh = a second listFamilies call after the initial load.
-      expect(listFamilies).toHaveBeenCalledTimes(2);
     });
+    // The new family is appended to the list and rendered immediately.
+    expect(await screen.findByText('The Joneses')).toBeInTheDocument();
   });
 
   test('adding a guest calls addGuest with the family id and name', async () => {
@@ -157,7 +160,10 @@ describe('AdminDashboard', () => {
     await userEvent.click(within(adultRow).getByRole('button', { name: /make child/i }));
 
     await waitFor(() =>
-      expect(updateGuest).toHaveBeenCalledWith('g1', { is_child: true })
+      expect(updateGuest).toHaveBeenCalledWith('g1', {
+        is_child: true,
+        meal_preference: 'Chicken Fingers and Fries',
+      })
     );
   });
 

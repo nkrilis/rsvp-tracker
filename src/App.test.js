@@ -31,7 +31,7 @@ describe('App routing', () => {
     window.location.hash = '#/';
     render(<App />);
     expect(
-      await screen.findByText(/please enter your name and family name/i)
+      await screen.findByText(/enter your first name followed by your family name/i)
     ).toBeInTheDocument();
   });
 
