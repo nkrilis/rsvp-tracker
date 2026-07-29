@@ -152,7 +152,7 @@ const RSVPForm = ({ guestData, onLogout }) => {
                 <p className="event-address">1745 Langstaff Road W</p>
                 <p className="event-address">Vaughan, ON L4K 2H2, Canada</p>
               </a>
-              <p className="event-time">Cocktails at 5:00 PM</p>
+              <p className="event-time">Cocktails at 5:30 PM</p>
             </div>
           </div>
         </div>
