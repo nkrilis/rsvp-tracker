@@ -21,21 +21,28 @@ beforeEach(() => {
 });
 
 describe('Login', () => {
-  test('renders both the name and family-name fields plus the continue button', () => {
+  test('renders the full-name field and the continue button', () => {
     renderLogin();
-    expect(screen.getByPlaceholderText(/your full name/i)).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText(/family name \(as on your invitation\)/i)
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/john smiths/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
   });
 
-  test('both fields are required', () => {
+  test('the full-name field is required', () => {
     renderLogin();
-    expect(screen.getByPlaceholderText(/your full name/i)).toBeRequired();
+    expect(screen.getByPlaceholderText(/john smiths/i)).toBeRequired();
+  });
+
+  test('a single word without a family name shows a validation error', async () => {
+    const { onLoginSuccess } = renderLogin();
+
+    await userEvent.type(screen.getByPlaceholderText(/john smiths/i), 'John');
+    await userEvent.click(screen.getByRole('button', { name: /continue/i }));
+
     expect(
-      screen.getByPlaceholderText(/family name \(as on your invitation\)/i)
-    ).toBeRequired();
+      await screen.findByText(/first name and family name/i)
+    ).toBeInTheDocument();
+    expect(findFamily).not.toHaveBeenCalled();
+    expect(onLoginSuccess).not.toHaveBeenCalled();
   });
 
   test('successful lookup calls onLoginSuccess with the returned family', async () => {
@@ -43,18 +50,11 @@ describe('Login', () => {
     findFamily.mockResolvedValue({ status: 'ok', result });
     const { onLoginSuccess } = renderLogin();
 
-    await userEvent.type(screen.getByPlaceholderText(/your full name/i), 'John Smith');
-    await userEvent.type(
-      screen.getByPlaceholderText(/family name/i),
-      'The Smiths'
-    );
+    await userEvent.type(screen.getByPlaceholderText(/john smiths/i), 'John Smiths');
     await userEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await waitFor(() => {
-      expect(findFamily).toHaveBeenCalledWith({
-        fullName: 'John Smith',
-        familyName: 'The Smiths',
-      });
+      expect(findFamily).toHaveBeenCalledWith({ fullName: 'John Smiths' });
       expect(onLoginSuccess).toHaveBeenCalledWith(result);
     });
   });
@@ -63,8 +63,7 @@ describe('Login', () => {
     findFamily.mockResolvedValue({ status: 'not_found' });
     const { onLoginSuccess } = renderLogin();
 
-    await userEvent.type(screen.getByPlaceholderText(/your full name/i), 'Nobody');
-    await userEvent.type(screen.getByPlaceholderText(/family name/i), 'Unknown');
+    await userEvent.type(screen.getByPlaceholderText(/john smiths/i), 'Nobody Unknown');
     await userEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     expect(await screen.findByText(/couldn't find your name/i)).toBeInTheDocument();
@@ -81,8 +80,7 @@ describe('Login', () => {
     });
     renderLogin();
 
-    await userEvent.type(screen.getByPlaceholderText(/your full name/i), 'John Smith');
-    await userEvent.type(screen.getByPlaceholderText(/family name/i), 'The Smiths');
+    await userEvent.type(screen.getByPlaceholderText(/john smiths/i), 'John Smith');
     await userEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     expect(await screen.findByText(/more than one household/i)).toBeInTheDocument();
@@ -102,8 +100,7 @@ describe('Login', () => {
     loadFamilyById.mockResolvedValue(loaded);
     const { onLoginSuccess } = renderLogin();
 
-    await userEvent.type(screen.getByPlaceholderText(/your full name/i), 'John Smith');
-    await userEvent.type(screen.getByPlaceholderText(/family name/i), 'The Smiths');
+    await userEvent.type(screen.getByPlaceholderText(/john smiths/i), 'John Smith');
     await userEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     // Click the second household (identified by its unique member, Bob Smith).
@@ -126,13 +123,12 @@ describe('Login', () => {
     });
     renderLogin();
 
-    await userEvent.type(screen.getByPlaceholderText(/your full name/i), 'John Smith');
-    await userEvent.type(screen.getByPlaceholderText(/family name/i), 'The Smiths');
+    await userEvent.type(screen.getByPlaceholderText(/john smiths/i), 'John Smith');
     await userEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await userEvent.click(await screen.findByRole('button', { name: /back/i }));
 
-    expect(screen.getByPlaceholderText(/your full name/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/john smiths/i)).toBeInTheDocument();
     expect(screen.queryByText(/more than one household/i)).not.toBeInTheDocument();
   });
 
@@ -140,8 +136,7 @@ describe('Login', () => {
     findFamily.mockRejectedValue(new Error('network down'));
     renderLogin();
 
-    await userEvent.type(screen.getByPlaceholderText(/your full name/i), 'John Smith');
-    await userEvent.type(screen.getByPlaceholderText(/family name/i), 'The Smiths');
+    await userEvent.type(screen.getByPlaceholderText(/john smiths/i), 'John Smith');
     await userEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     expect(await screen.findByText(/an error occurred/i)).toBeInTheDocument();

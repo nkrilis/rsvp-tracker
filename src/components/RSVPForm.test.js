@@ -30,17 +30,17 @@ beforeEach(() => {
 });
 
 describe('RSVPForm', () => {
-  test('greets a single guest by their own name', () => {
-    renderForm({ family: { family_name: 'The Smiths' }, guests: [makeGuest()] });
-    expect(screen.getByText(/welcome, john smith!/i)).toBeInTheDocument();
+  test('greets the household by their family name', () => {
+    renderForm({ family: { family_name: 'Smith' }, guests: [makeGuest()] });
+    expect(screen.getByText(/welcome, the smith family!/i)).toBeInTheDocument();
   });
 
   test('greets multiple guests by the family name', () => {
     renderForm({
-      family: { family_name: 'The Smiths' },
+      family: { family_name: 'Smith' },
       guests: [makeGuest(), makeGuest({ id: 'g2', full_name: 'Jane Smith' })],
     });
-    expect(screen.getByText(/welcome, the smiths!/i)).toBeInTheDocument();
+    expect(screen.getByText(/welcome, the smith family!/i)).toBeInTheDocument();
   });
 
   test('shows ceremony and reception event details', () => {
@@ -48,7 +48,7 @@ describe('RSVPForm', () => {
     expect(screen.getByRole('heading', { name: 'Ceremony' })).toBeInTheDocument();
     expect(screen.getByText(/st\. peter's roman catholic church/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Reception' })).toBeInTheDocument();
-    expect(screen.getByText(/chateau le parc/i)).toBeInTheDocument();
+    expect(screen.getByText('Chateau Le Parc')).toBeInTheDocument();
   });
 
   test('renders a block per guest with a guest counter for multiple guests', () => {
@@ -71,9 +71,11 @@ describe('RSVPForm', () => {
     await userEvent.click(yesRadios[1]);
 
     expect(await screen.findByText(/meal preference/i)).toBeInTheDocument();
-    expect(screen.getByText('Steak')).toBeInTheDocument();
-    expect(screen.getByText('Salmon')).toBeInTheDocument();
-    expect(screen.getByText(/dietary restrictions/i)).toBeInTheDocument();
+    // The adult meal choices are rendered as radio inputs with these values.
+    expect(screen.getByDisplayValue('Beef Short Rib')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Salmon')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Vegetarian')).toBeInTheDocument();
+    expect(screen.getByText(/dietary restrictions or allergies/i)).toBeInTheDocument();
   });
 
   test('children see the child meal option instead of the adult meals', async () => {
@@ -85,9 +87,10 @@ describe('RSVPForm', () => {
     await userEvent.click(screen.getAllByDisplayValue('Yes')[1]); // reception yes
 
     expect(await screen.findByText(/children's meal/i)).toBeInTheDocument();
-    expect(screen.getByText('Chicken Fingers and Fries')).toBeInTheDocument();
-    expect(screen.queryByText('Steak')).not.toBeInTheDocument();
-    expect(screen.queryByText('Salmon')).not.toBeInTheDocument();
+    // No adult meal radios are offered to children.
+    expect(screen.queryByDisplayValue('Beef Short Rib')).not.toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Salmon')).not.toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Vegetarian')).not.toBeInTheDocument();
   });
 
   test('submitting saves the RSVP and shows a success message', async () => {
@@ -125,8 +128,25 @@ describe('RSVPForm', () => {
   test('a chosen meal preference is reflected in the selected radio', async () => {
     renderForm({ family: { family_name: 'The Smiths' }, guests: [makeGuest()] });
     await userEvent.click(screen.getAllByDisplayValue('Yes')[1]); // reception yes
-    const steak = await screen.findByDisplayValue('Steak');
-    await userEvent.click(steak);
-    expect(steak).toBeChecked();
+    const beef = await screen.findByDisplayValue('Beef Short Rib');
+    await userEvent.click(beef);
+    expect(beef).toBeChecked();
+  });
+
+  test('an adult can choose the vegetarian meal and it is submitted', async () => {
+    submitFamilyRSVP.mockResolvedValue(true);
+    renderForm({ family: { family_name: 'The Smiths' }, guests: [makeGuest()] });
+
+    await userEvent.click(screen.getAllByDisplayValue('Yes')[0]); // church yes
+    await userEvent.click(screen.getAllByDisplayValue('Yes')[1]); // reception yes
+    const vegetarian = await screen.findByDisplayValue('Vegetarian');
+    await userEvent.click(vegetarian);
+    expect(vegetarian).toBeChecked();
+
+    await userEvent.click(screen.getByRole('button', { name: /save rsvp/i }));
+
+    await waitFor(() => expect(submitFamilyRSVP).toHaveBeenCalledTimes(1));
+    const submittedGuests = submitFamilyRSVP.mock.calls[0][0];
+    expect(submittedGuests[0].meal_preference).toBe('Vegetarian');
   });
 });
