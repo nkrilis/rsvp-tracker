@@ -15,6 +15,11 @@ const MEAL_OPTIONS = [
     label: 'Salmon', 
     note: 'Contains dairy',
     description: 'Seared filet with lemon, dill and butter. Served with Potato gratin, broccolini and red peppers.'
+  },
+  { 
+    value: 'Vegetarian', 
+    label: 'Vegetarian', 
+    description: 'Eggplant stuffed with onion, red pepper, zucchini, rice and quinoa.'
   }
 ];
 
@@ -209,6 +214,12 @@ const RSVPForm = ({ guestData, onLogout }) => {
                 <p className="menu-item-name">Salmon <span className="menu-allergen">*contains dairy*</span></p>
                 <p className="menu-item-description">
                   Seared filet with lemon, dill and butter. Served with Potato gratin, broccolini and red peppers.
+                </p>
+              </div>
+              <div className="menu-item">
+                <p className="menu-item-name">Vegetarian</p>
+                <p className="menu-item-description">
+                  Eggplant stuffed with onion, red pepper, zucchini, rice and quinoa.
                 </p>
               </div>
             </div>

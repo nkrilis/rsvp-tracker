@@ -107,7 +107,7 @@ export const submitFamilyRSVP = async (guests) => {
   for (const g of guests) {
     if (g.reception_attendance === 'Yes' && !g.is_child) {
       // Adults must select a meal
-      if (!g.meal_preference || !['Beef Short Rib', 'Salmon'].includes(g.meal_preference)) {
+      if (!g.meal_preference || !['Beef Short Rib', 'Salmon', 'Vegetarian'].includes(g.meal_preference)) {
         throw new Error(`Adult guest must select a meal preference`);
       }
     }
@@ -124,7 +124,7 @@ export const submitFamilyRSVP = async (guests) => {
         if (g.is_child) {
           mealPref = 'Chicken Fingers and Fries';
         } else {
-          mealPref = ['Beef Short Rib', 'Salmon'].includes(g.meal_preference) 
+          mealPref = ['Beef Short Rib', 'Salmon', 'Vegetarian'].includes(g.meal_preference) 
             ? g.meal_preference 
             : null;
         }
