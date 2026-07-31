@@ -95,6 +95,8 @@ const RSVPForm = ({ guestData, onLogout }) => {
     ? `The ${family.family_name} Family`
     : 'Friends';
 
+  const hasChild = guestForms.some((g) => g.is_child);
+
   return (
     <div className="rsvp-container">
       <div className="rsvp-card">
@@ -165,21 +167,37 @@ const RSVPForm = ({ guestData, onLogout }) => {
         <div className="menu-section">
           <h2>Menu</h2>
           
-          <div className="menu-category">
-            <h3>Children's Menu</h3>
-            <div className="menu-item">
-              <p className="menu-item-name">Chicken Fingers and Fries</p>
-              <p className="menu-item-description">(Included for all children)</p>
-            </div>
-            <div className="menu-item">
-              <p className="menu-item-name">Dessert</p>
-            </div>
-          </div>
+          {hasChild && (
+            <>
+              <div className="menu-category">
+                <h3>Children's Menu</h3>
+                <div className="menu-course">
+                  <h4>Pasta</h4>
+                  <div className="menu-item">
+                    <p className="menu-item-name">Caserecce</p>
+                    <p className="menu-item-description">
+                      Rose sauce with pancetta.
+                    </p>
+                  </div>
+                </div>
+                <div className="menu-course">
+                  <h4>Main</h4>
+                <div className="menu-item">
+                  <p className="menu-item-name">Chicken Fingers and Fries</p>
+                  <p className="menu-item-description">(Included for all children)</p>
+                </div>
+                <div className="menu-item">
+                  <p className="menu-item-name">Dessert</p>
+                </div>
+              </div>
+              </div>
 
-          <div className="menu-divider"></div>
+              <div className="menu-divider"></div>
+            </>
+          )}
 
           <div className="menu-category">
-            <h3>Adult Menu</h3>
+            {hasChild && <h3>Adult Menu</h3>}
             
             <div className="menu-course">
               <h4>Antipasto</h4>
@@ -197,7 +215,7 @@ const RSVPForm = ({ guestData, onLogout }) => {
               <div className="menu-item">
                 <p className="menu-item-name">Caserecce</p>
                 <p className="menu-item-description">
-                  Rose sauce with pancetta, portobellini mushrooms and peas.
+                  Rose sauce with pancetta.
                 </p>
               </div>
             </div>
